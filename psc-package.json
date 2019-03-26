@@ -5,6 +5,7 @@
   "depends": [
     "console",
     "effect",
+    "halogen",
     "prelude",
     "psci-support"
   ]
