@@ -1,7 +1,7 @@
 ````
 yarn init
 yarn add --dev purescript pulp psc-package purescript-psa \
-  webpack webpack-cli webpack-dev-server purs-loader html-webpack-plugin foreman
+  webpack webpack-cli webpack-dev-server purs-loader html-webpack-plugin foreman file-loader
 yarn pulp --psc-package init --force
 ```
 

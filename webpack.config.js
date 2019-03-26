@@ -20,11 +20,19 @@ module.exports = {
             }
           }
         ]
+      },
+      {
+        test: /\.(png|jpg|gif|eot|woff|ttf|svg|ico)$/,
+        use: [
+          {
+            loader: 'file-loader'
+          }
+        ]
       }
     ]
   },
   resolve: {
-    extensions: [ '.js', '.sass', '.scss', 'css', '.purs' ],
+    extensions: [ '.js', '.sass', '.scss', 'css', '.purs', 'png' ],
   },
   plugins: [
     new HtmlWebpackPlugin({
