@@ -20,5 +20,8 @@
     "start": "nf start",
     "build": "webpack --mode=production",
     "deploy": "yarn run build && firebase deploy"
+  },
+  "dependencies": {
+    "firebase": "^5.9.1"
   }
 }
