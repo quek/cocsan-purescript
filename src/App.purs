@@ -1,4 +1,4 @@
-module Button (component) where
+module Coc.App (component) where
 
 import Prelude
 
@@ -37,7 +37,7 @@ render state =
           ]
           [ HH.text label ]
       , HH.p_ [ HH.text "ねこ" ]
-      , HH.img [ HP.src (assets "1.png") ]
+      , HH.img [ HP.src $ assets "1.png" ]
       ]
 
 handleAction ∷ forall o m. Action → H.HalogenM State Action () o m Unit

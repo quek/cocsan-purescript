@@ -16,7 +16,7 @@ module.exports = {
             loader: 'purs-loader',
             options: {
               psc: 'psa',
-              src: ['.psc-package/psc-*/*/v*/src/**/*.purs', 'src/**/*.purs']
+              src: ['bower_components/purescript-*/src/**/*.purs', 'src/**/*.purs']
             }
           }
         ]
@@ -37,7 +37,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       title: 'CoC',
-      template: 'index.html'
+      template: 'src/index.html'
     })
   ],
   devServer: {

@@ -1,0 +1,23 @@
+{
+  "name": "cocsan",
+  "description": "",
+  "main": "src/index.js",
+  "authors": [
+    "TAHARA Yoshinori <read.eval.print@gmail.com>"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "purescript-halogen-formless": "halogen-5",
+    "purescript-halogen": "v5.0.0-rc.4",
+    "purescript-typelevel-prelude": "v4.0.0"
+  }
+}

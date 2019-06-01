@@ -4,12 +4,12 @@
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
+    "bower": "^1.8.8",
     "file-loader": "^3.0.1",
     "foreman": "^3.0.1",
     "html-webpack-plugin": "^3.2.0",
-    "psc-package": "^3.0.1",
-    "pulp": "^12.3.1",
-    "purescript": "^0.12.3",
+    "pulp": "^13.0.0",
+    "purescript": "^0.12.5",
     "purescript-psa": "^0.7.3",
     "purs-loader": "^3.4.0",
     "webpack": "^4.29.6",
@@ -22,6 +22,6 @@
     "deploy": "yarn run build && firebase deploy"
   },
   "dependencies": {
-    "firebase": "^5.9.1"
+    "firebase": "^6.1.0"
   }
 }
