@@ -6,6 +6,7 @@
 /.psc-package/
 /.pulp-cache/
 /.purs*
+/.spago
 /bower_components/
 /firebase-debug.log
 /generated-docs/

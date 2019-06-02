@@ -16,7 +16,7 @@ module.exports = {
             loader: 'purs-loader',
             options: {
               psc: 'psa',
-              src: ['bower_components/purescript-*/src/**/*.purs', 'src/**/*.purs']
+              src: ['.spago/*/*/src/**/*.purs', 'src/**/*.purs']
             }
           }
         ]
