@@ -2,29 +2,35 @@ module Coc.App (component) where
 
 import Prelude
 
+import Assets (assets)
+import Coc.Component.List as CList
 import Data.Maybe (Maybe(..))
 import Data.Symbol (SProxy(..))
+import Effect.Aff (Aff)
+import Effect.Console (log)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import Assets (assets)
-import Coc.Component.List as CList
+
+-- import Coc.Foreign as F
 
 type State = { enabled :: Boolean }
 
-data Action = Toggle
+data Action = Toggle | Initialize
 
 type ChildSlots = ( list :: CList.Slot Unit )
 
 _list = SProxy :: SProxy "list"
 
-component :: forall q i o m. H.Component HH.HTML q i o m
+component :: forall q i o. H.Component HH.HTML q i o Aff
 component =
   H.mkComponent
     { initialState
     , render
-    , eval: H.mkEval $ H.defaultEval { handleAction = handleAction }
+    , eval: H.mkEval $ H.defaultEval { handleAction = handleAction
+                                     , initialize = Just Initialize
+                                     }
     }
 
 initialState :: forall i. i -> State
@@ -46,7 +52,10 @@ render state =
       , HH.img [ HP.src $ assets "1.png" ]
       ]
 
-handleAction ∷ forall o m. Action → H.HalogenM State Action ChildSlots o m Unit
+handleAction :: forall o. Action → H.HalogenM State Action ChildSlots o Aff Unit
 handleAction = case _ of
   Toggle ->
     H.modify_ \st -> st { enabled = not st.enabled }
+  Initialize ->
+    H.liftEffect $ log "初期化です！！！"
+    -- F.collection("tasks")
