@@ -5,11 +5,20 @@ require('firebase/auth');
 require('firebase/firestore');
 require('firebase/storage');
 
+
 fetch('/__/firebase/init.json')
   .then(response => {
     return response.json();
   })
   .then(config => {
     firebase.initializeApp(config);
-    require('./Main').main();
+
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        require('./Main').main();
+      } else {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithRedirect(provider);
+      }
+    });
   });

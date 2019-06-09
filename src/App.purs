@@ -58,5 +58,5 @@ handleAction = case _ of
   Initialize -> do
     H.liftEffect $ log "初期化です！！！"
     H.liftEffect $ log $ Firestore.id $ Firestore.collection "tasks"
-    querySnapshot <- H.liftAff $ Firestore.get $ Firestore.collection "tasks"
+    querySnapshot <- H.liftAff $ Firestore.get $ Firestore.collection "characters"
     H.liftEffect $ log $ show $ Firestore.size querySnapshot
