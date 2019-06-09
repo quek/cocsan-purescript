@@ -13,7 +13,7 @@ import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 
--- import Coc.Foreign as F
+-- import Coc.Firestore as Firestore
 
 type State = { enabled :: Boolean }
 
@@ -57,5 +57,5 @@ handleAction = case _ of
   Toggle ->
     H.modify_ \st -> st { enabled = not st.enabled }
   Initialize ->
+    -- Firestore.collection "tasks"
     H.liftEffect $ log "初期化です！！！"
-    -- F.collection("tasks")

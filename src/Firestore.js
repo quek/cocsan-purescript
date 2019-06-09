@@ -1,4 +1,5 @@
 "use strict";
+
 const firebase = require('firebase/app');
 require('firebase/firestore');
 
