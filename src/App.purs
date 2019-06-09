@@ -56,6 +56,7 @@ handleAction = case _ of
   Toggle ->
     H.modify_ \st -> st { enabled = not st.enabled }
   Initialize -> do
-    -- Firestore.collection "tasks"
     H.liftEffect $ log "初期化です！！！"
     H.liftEffect $ log $ Firestore.id $ Firestore.collection "tasks"
+    querySnapshot <- H.liftAff $ Firestore.get $ Firestore.collection "tasks"
+    H.liftEffect $ log $ show $ Firestore.size querySnapshot

@@ -12,5 +12,11 @@ exports.id = function(hasId) {
 };
 
 exports.getImpl = function(collection) {
-  return collection.get();
+  return function() {
+    return collection.get();
+  };
+};
+
+exports.size = function(querySnapshot) {
+  return querySnapshot.size;
 };
