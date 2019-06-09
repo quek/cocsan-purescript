@@ -4,6 +4,7 @@ import Prelude
 
 import Assets (assets)
 import Coc.Component.List as CList
+import Coc.Firestore as Firestore
 import Data.Maybe (Maybe(..))
 import Data.Symbol (SProxy(..))
 import Effect.Aff (Aff)
@@ -12,8 +13,6 @@ import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-
--- import Coc.Firestore as Firestore
 
 type State = { enabled :: Boolean }
 
@@ -56,6 +55,7 @@ handleAction :: forall o. Action → H.HalogenM State Action ChildSlots o Aff Un
 handleAction = case _ of
   Toggle ->
     H.modify_ \st -> st { enabled = not st.enabled }
-  Initialize ->
+  Initialize -> do
     -- Firestore.collection "tasks"
     H.liftEffect $ log "初期化です！！！"
+    H.liftEffect $ log $ Firestore.id $ Firestore.collection "tasks"

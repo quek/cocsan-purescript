@@ -10,6 +10,8 @@ foreign import collection :: String -> CollectionReference
 -- collection :: String -> CollectionReference
 -- collection = collectionImpl
 
+foreign import id :: CollectionReference -> String
+
 foreign import getImpl :: EffectFn1 CollectionReference QuerySnapshot
 get :: CollectionReference -> Effect QuerySnapshot
 get = runEffectFn1 getImpl

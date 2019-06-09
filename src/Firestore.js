@@ -7,6 +7,10 @@ exports.collection = function(collectionName) {
   return firebase.firestore().collection(collectionName);
 };
 
+exports.id = function(hasId) {
+  return hasId.id;
+};
+
 exports.getImpl = function(collection) {
   return collection.get();
 };
