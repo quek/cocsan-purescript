@@ -5,10 +5,11 @@ import Prelude
 import Assets (assets)
 import Coc.Component.List as CList
 import Coc.Firestore as Firestore
+import Data.Array (head)
 import Data.Maybe (Maybe(..))
 import Data.Symbol (SProxy(..))
 import Effect.Aff (Aff)
-import Effect.Console (log)
+import Effect.Console (log, logShow)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
@@ -59,4 +60,9 @@ handleAction = case _ of
     H.liftEffect $ log "初期化です！！！"
     H.liftEffect $ log $ Firestore.id $ Firestore.collection "tasks"
     querySnapshot <- H.liftAff $ Firestore.get $ Firestore.collection "tasks"
-    H.liftEffect $ log $ show $ Firestore.size querySnapshot
+    H.liftEffect $ logShow $ Firestore.size querySnapshot
+    case head $ Firestore.docs querySnapshot of
+      Just doc ->
+        H.liftEffect $ log $ Firestore.getField doc "name"
+      Nothing ->
+        H.liftEffect $ log $ "Nothing!"
