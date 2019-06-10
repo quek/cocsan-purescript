@@ -61,8 +61,8 @@ handleAction = case _ of
     H.liftEffect $ log $ Firestore.id $ Firestore.collection "tasks"
     querySnapshot <- H.liftAff $ Firestore.get $ Firestore.collection "tasks"
     H.liftEffect $ logShow $ Firestore.size querySnapshot
-    case head $ Firestore.docs querySnapshot of
+    H.liftEffect $ log $ case head $ Firestore.docs querySnapshot of
       Just doc ->
-        H.liftEffect $ log $ Firestore.getField doc "name"
+        Firestore.getField doc "name"
       Nothing ->
-        H.liftEffect $ log $ "Nothing!"
+        "Nothing!"
