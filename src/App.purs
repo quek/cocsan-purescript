@@ -72,6 +72,6 @@ handleAction = case _ of
         case runExcept (genericDecode (defaultOptions {unwrapSingleConstructors = true}) (Firestore.documentData  doc) :: F Task) of
           Right task ->
             show task
-          Left _ -> "Nya"
+          Left error -> show error
       Nothing ->
         "Nothing!"
