@@ -69,9 +69,13 @@ handleAction = case _ of
     H.liftEffect $ log $ case head $ Firestore.docs querySnapshot of
       Just doc ->
         -- Firestore.getField doc "name"
-        case runExcept (genericDecode (defaultOptions {unwrapSingleConstructors = true}) (Firestore.documentData  doc) :: F Task) of
-          Right task ->
-            show task
-          Left error -> show error
+        let
+          opts = defaultOptions {unwrapSingleConstructors = true}
+          docData = Firestore.documentData doc
+        in
+          case runExcept (genericDecode opts docData :: F Task) of
+            Right task ->
+              show task
+            Left error -> show error
       Nothing ->
         "Nothing!"
