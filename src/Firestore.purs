@@ -4,16 +4,17 @@ import Prelude
 
 import Control.Promise (Promise)
 import Control.Promise as Promise
-import Data.Function.Uncurried (Fn2, runFn2)
+import Data.Function.Uncurried (Fn2, Fn1, runFn1, runFn2)
 import Effect (Effect)
 import Effect.Aff (Aff)
 import Effect.Class (liftEffect)
-import Effect.Uncurried (EffectFn1, runEffectFn1)
+-- import Effect.Uncurried (EffectFn1, runEffectFn1)
+import Foreign (Foreign)
 
 foreign import data CollectionReference :: Type
 foreign import data QuerySnapshot :: Type
 foreign import data QueryDocumentSnapshot :: Type
-foreign import data DocumentData :: Type
+-- foreign import data DocumentData :: Foreign
 
 foreign import collection :: String -> CollectionReference
 -- collection :: String -> CollectionReference
@@ -32,9 +33,9 @@ foreign import size :: QuerySnapshot -> Int
 
 foreign import docs :: QuerySnapshot -> Array QueryDocumentSnapshot
 
-foreign import documentDataImpl :: EffectFn1  QueryDocumentSnapshot DocumentData
-documentData :: QueryDocumentSnapshot -> Effect DocumentData
-documentData = runEffectFn1 documentDataImpl
+foreign import documentDataImpl :: Fn1  QueryDocumentSnapshot Foreign
+documentData :: QueryDocumentSnapshot -> Foreign
+documentData = runFn1 documentDataImpl
 
 foreign import getFieldImpl :: Fn2 QueryDocumentSnapshot String String
 getField :: QueryDocumentSnapshot -> String -> String

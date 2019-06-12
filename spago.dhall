@@ -21,5 +21,8 @@
     , "argonaut-core"
     , "argonaut-codecs"
     , "aff-bus"
+    , "aff-promise"
+    , "foreign-generic"
+    , "psci-support"
     ]
 }

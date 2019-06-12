@@ -5,11 +5,13 @@ import Prelude
 import Assets (assets)
 import Coc.Component.List as CList
 import Coc.Firestore as Firestore
+import Coc.Model.Task (Task)
 import Data.Array (head)
 import Data.Maybe (Maybe(..))
 import Data.Symbol (SProxy(..))
 import Effect.Aff (Aff)
 import Effect.Console (log, logShow)
+import Foreign.Generic (defaultOptions, genericDecode)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
@@ -63,6 +65,7 @@ handleAction = case _ of
     H.liftEffect $ logShow $ Firestore.size querySnapshot
     H.liftEffect $ log $ case head $ Firestore.docs querySnapshot of
       Just doc ->
-        Firestore.getField doc "name"
+        -- Firestore.getField doc "name"
+        genericDecode (defaultOptions {unwrapSingleConstructors = true}) (Firestore.documentData  doc) :: _ Task
       Nothing ->
         "Nothing!"
