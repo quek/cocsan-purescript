@@ -8,7 +8,7 @@ import Coc.Firestore as Firestore
 import Coc.Model.Task (Task)
 import Control.Monad.Except (runExcept)
 import Data.Array (head)
-import Data.Either (Either(..))
+import Data.Either (Either(..), hush)
 import Data.Maybe (Maybe(..))
 import Data.Symbol (SProxy(..))
 import Effect.Aff (Aff)
@@ -20,7 +20,9 @@ import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 
-type State = { enabled :: Boolean }
+type State = { enabled :: Boolean
+             , tasks :: Array (Maybe Task)
+             }
 
 data Action = Toggle | Initialize
 
@@ -39,7 +41,7 @@ component =
     }
 
 initialState :: forall i. i -> State
-initialState _ = { enabled: false }
+initialState _ = { enabled: false, tasks: [] }
 
 render :: forall m. State -> H.ComponentHTML Action ChildSlots m
 render state =
@@ -66,6 +68,15 @@ handleAction = case _ of
     H.liftEffect $ log $ Firestore.id $ Firestore.collection "tasks"
     querySnapshot <- H.liftAff $ Firestore.get $ Firestore.collection "tasks"
     H.liftEffect $ logShow $ Firestore.size querySnapshot
+    H.modify_ (_ { tasks = (
+      map
+        (\doc ->
+          hush (runExcept
+            (genericDecode
+              (defaultOptions {unwrapSingleConstructors = true})
+              (Firestore.documentData doc) :: F Task)))
+        (Firestore.docs querySnapshot)
+    )})
     H.liftEffect $ log $ case head $ Firestore.docs querySnapshot of
       Just doc ->
         -- Firestore.getField doc "name"
