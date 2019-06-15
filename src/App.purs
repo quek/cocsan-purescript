@@ -49,6 +49,12 @@ render state =
   in
     HH.div_
       [ HH.slot _list unit CList.component unit absurd
+      , HH.ul_
+        do
+          maybeTask <- state.tasks
+          pure case maybeTask of
+            Just task -> HH.li_ [ HH.text $ show task ]
+            _ -> HH.li_ [ HH.text "Nothing" ]
       , HH.button
           [ HP.title label
           , HE.onClick \_ -> Just Toggle
