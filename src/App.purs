@@ -67,10 +67,10 @@ handleAction = case _ of
     H.liftEffect $ log $ Firestore.id $ Firestore.collection "tasks"
     querySnapshot <- H.liftAff $ Firestore.get $ Firestore.collection "tasks"
     H.liftEffect $ logShow $ Firestore.size querySnapshot
-    H.modify_ (_ { tasks = (
-      do
+    let
+      tasks = do
         doc <- Firestore.docs querySnapshot
-        pure $ hush $ runExcept $ (genericDecode
-          (defaultOptions {unwrapSingleConstructors = true})
-          (Firestore.documentData doc)) :: F Task
-    )})
+        let documentData = Firestore.documentData doc
+        let opts = defaultOptions {unwrapSingleConstructors = true}
+        pure $ hush $ runExcept $ (genericDecode opts documentData) :: F Task
+    H.modify_ (_ { tasks = tasks})
