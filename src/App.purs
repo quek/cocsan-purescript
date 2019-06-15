@@ -7,7 +7,6 @@ import Coc.Component.List as CList
 import Coc.Firestore as Firestore
 import Coc.Model.Task (Task)
 import Control.Monad.Except (runExcept)
-import Data.Array (head)
 import Data.Either (Either(..), hush)
 import Data.Maybe (Maybe(..))
 import Data.Symbol (SProxy(..))
@@ -69,24 +68,9 @@ handleAction = case _ of
     querySnapshot <- H.liftAff $ Firestore.get $ Firestore.collection "tasks"
     H.liftEffect $ logShow $ Firestore.size querySnapshot
     H.modify_ (_ { tasks = (
-      map
-        (\doc ->
-          hush (runExcept
-            (genericDecode
-              (defaultOptions {unwrapSingleConstructors = true})
-              (Firestore.documentData doc) :: F Task)))
-        (Firestore.docs querySnapshot)
+      do
+        doc <- Firestore.docs querySnapshot
+        pure $ hush $ runExcept $ (genericDecode
+          (defaultOptions {unwrapSingleConstructors = true})
+          (Firestore.documentData doc)) :: F Task
     )})
-    H.liftEffect $ log $ case head $ Firestore.docs querySnapshot of
-      Just doc ->
-        -- Firestore.getField doc "name"
-        let
-          opts = defaultOptions {unwrapSingleConstructors = true}
-          docData = Firestore.documentData doc
-        in
-          case runExcept (genericDecode opts docData :: F Task) of
-            Right task ->
-              show task
-            Left error -> show error
-      Nothing ->
-        "Nothing!"
