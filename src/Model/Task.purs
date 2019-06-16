@@ -1,6 +1,7 @@
 module Coc.Model.Task where
 
 import Prelude
+
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 

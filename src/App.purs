@@ -5,7 +5,7 @@ import Prelude
 import Assets (assets)
 import Coc.Component.List as CList
 import Coc.Firestore as Firestore
-import Coc.Model.Task (Task)
+import Coc.Model.Task (Task(..))
 import Control.Monad.Except (runExcept)
 import Control.MonadPlus (guard)
 import Data.Either (hush)
@@ -53,8 +53,8 @@ render state =
       [ HH.slot _list unit CList.component unit absurd
       , HH.ul_
         do
-          task <- state.tasks
-          pure $ HH.li_ [ HH.text $ show task ]
+          (Task task) <- state.tasks
+          pure $ HH.li_ [ HH.text task.name ]
       , HH.button
           [ HP.title label
           , HE.onClick \_ -> Just Toggle
