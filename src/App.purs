@@ -7,8 +7,9 @@ import Coc.Component.List as CList
 import Coc.Firestore as Firestore
 import Coc.Model.Task (Task)
 import Control.Monad.Except (runExcept)
+import Control.MonadPlus (guard)
 import Data.Either (hush)
-import Data.Maybe (Maybe(..), fromJust, maybe)
+import Data.Maybe (Maybe(..), fromJust, isJust)
 import Data.Symbol (SProxy(..))
 import Effect.Aff (Aff)
 import Effect.Console (log, logShow)
@@ -78,5 +79,6 @@ handleAction = case _ of
         doc <- Firestore.docs querySnapshot
         let documentData = Firestore.documentData doc
         let maybeTask = hush $ runExcept $ (genericDecode opts documentData) :: F Task
+        guard $ isJust maybeTask
         pure $ unsafePartial fromJust maybeTask
     H.modify_ (_ { tasks = tasks})
