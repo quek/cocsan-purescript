@@ -7,8 +7,8 @@ import Coc.Component.List as CList
 import Coc.Firestore as Firestore
 import Coc.Model.Task (Task)
 import Control.Monad.Except (runExcept)
-import Data.Either (Either(..), hush)
-import Data.Maybe (Maybe(..))
+import Data.Either (hush)
+import Data.Maybe (Maybe(..), fromJust, maybe)
 import Data.Symbol (SProxy(..))
 import Effect.Aff (Aff)
 import Effect.Console (log, logShow)
@@ -18,9 +18,10 @@ import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
+import Partial.Unsafe (unsafePartial)
 
 type State = { enabled :: Boolean
-             , tasks :: Array (Maybe Task)
+             , tasks :: Array Task
              }
 
 data Action = Toggle | Initialize
@@ -51,10 +52,8 @@ render state =
       [ HH.slot _list unit CList.component unit absurd
       , HH.ul_
         do
-          maybeTask <- state.tasks
-          pure case maybeTask of
-            Just task -> HH.li_ [ HH.text $ show task ]
-            _ -> HH.li_ [ HH.text "Nothing" ]
+          task <- state.tasks
+          pure $ HH.li_ [ HH.text $ show task ]
       , HH.button
           [ HP.title label
           , HE.onClick \_ -> Just Toggle
@@ -74,10 +73,10 @@ handleAction = case _ of
     querySnapshot <- H.liftAff $ Firestore.get $ Firestore.collection "tasks"
     H.liftEffect $ logShow $ Firestore.size querySnapshot
     let
+      opts = defaultOptions {unwrapSingleConstructors = true}
       tasks = do
         doc <- Firestore.docs querySnapshot
         let documentData = Firestore.documentData doc
-        let opts = defaultOptions {unwrapSingleConstructors = true}
-        let maybes = hush $ runExcept $ (genericDecode opts documentData) :: F Task
-        pure maybes
+        let maybeTask = hush $ runExcept $ (genericDecode opts documentData) :: F Task
+        pure $ unsafePartial fromJust maybeTask
     H.modify_ (_ { tasks = tasks})
