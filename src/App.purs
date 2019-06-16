@@ -78,5 +78,6 @@ handleAction = case _ of
         doc <- Firestore.docs querySnapshot
         let documentData = Firestore.documentData doc
         let opts = defaultOptions {unwrapSingleConstructors = true}
-        pure $ hush $ runExcept $ (genericDecode opts documentData) :: F Task
+        let maybes = hush $ runExcept $ (genericDecode opts documentData) :: F Task
+        pure maybes
     H.modify_ (_ { tasks = tasks})
