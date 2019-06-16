@@ -1,8 +1,8 @@
-module Coc.Routing where
+module Coc.Component.Routing where
 
 import Prelude
 
-import Coc.Tasks as Tasks
+import Coc.Component.Tasks as Tasks
 import Data.Array (snoc)
 import Data.Maybe (Maybe(..))
 import Data.Symbol (SProxy(..))

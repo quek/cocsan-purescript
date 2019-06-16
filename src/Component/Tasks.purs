@@ -1,4 +1,4 @@
-module Coc.Tasks where
+module Coc.Component.Tasks where
 
 import Prelude
 

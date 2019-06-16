@@ -2,7 +2,7 @@ module Main where
 
 import Prelude
 
-import Coc.Routing as Routing
+import Coc.Component.Routing as Routing
 import Control.Coroutine as CR
 import Control.Coroutine as Coroutine
 import Control.Coroutine.Aff (emit)
