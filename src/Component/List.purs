@@ -6,7 +6,6 @@ import Data.Maybe (Maybe(..))
 
 import Halogen as H
 import Halogen.HTML as HH
-import Halogen.HTML.Events as HE
 
 type Slot = H.Slot Query Void
 

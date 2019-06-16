@@ -1,4 +1,4 @@
-module Coc.App (component) where
+module Coc.Tasks where
 
 import Prelude
 
@@ -20,6 +20,10 @@ import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Partial.Unsafe (unsafePartial)
+
+type Slot = H.Slot Query Void
+
+data Query a = IsOn (Boolean -> a)
 
 type State = { enabled :: Boolean
              , tasks :: Array Task
@@ -82,3 +86,9 @@ handleAction = case _ of
         guard $ isJust maybeTask
         pure $ unsafePartial fromJust maybeTask
     H.modify_ (_ { tasks = tasks})
+
+handleQuery :: forall o m a. Query a -> H.HalogenM State Action () o m (Maybe a)
+handleQuery = case _ of
+  IsOn k -> do
+    state <- H.get
+    pure (Just (k state.enabled))
