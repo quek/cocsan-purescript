@@ -45,6 +45,6 @@ handleAction :: forall o. Action → H.HalogenM State Action () o Aff Unit
 handleAction = case _ of
   Go path event -> do
     H.liftEffect do
-      preventDefault $ toEvent event
+      event # toEvent # preventDefault
       nav <- makeInterface
       nav.pushState (unsafeToForeign {}) path
