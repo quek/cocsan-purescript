@@ -13,13 +13,14 @@ import Data.Maybe (Maybe(..), fromJust, isJust)
 import Data.Symbol (SProxy(..))
 import Effect.Aff (Aff)
 import Effect.Console (log, logShow)
-import Foreign (F)
+import Foreign (F, unsafeToForeign)
 import Foreign.Generic (defaultOptions, genericDecode)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Partial.Unsafe (unsafePartial)
+import Routing.PushState (makeInterface)
 
 type Slot = H.Slot Query Void
 
@@ -70,7 +71,11 @@ render state =
 
 handleAction :: forall o. Action → H.HalogenM State Action ChildSlots o Aff Unit
 handleAction = case _ of
-  Toggle ->
+  Toggle -> do
+    state <- H.get
+    H.liftEffect do
+      nav <- makeInterface
+      nav.pushState (unsafeToForeign {}) (if state.enabled then "/foo" else "/bar")
     H.modify_ \st -> st { enabled = not st.enabled }
   Initialize -> do
     H.liftEffect $ log "初期化です！！！"

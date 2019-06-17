@@ -12,7 +12,6 @@
     , "remotedata"
     , "routing"
     , "formatters"
-    , "routing-duplex"
     , "now"
     , "affjax"
     , "slug"
