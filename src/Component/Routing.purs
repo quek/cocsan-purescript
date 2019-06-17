@@ -3,6 +3,7 @@ module Coc.Component.Routing where
 import Prelude
 
 import Coc.Component.Tasks as Tasks
+import Coc.Component.Nav as Nav
 import Data.Array (snoc)
 import Data.Maybe (Maybe(..))
 import Data.Symbol (SProxy(..))
@@ -14,8 +15,13 @@ data Query a = ChangeRoute String a
 
 type State = { history :: Array String }
 
-type ChildSlots = ( tasks :: Tasks.Slot Unit )
+type ChildSlots =
+  ( tasks :: Tasks.Slot Unit
+  , nav :: Nav.Slot Unit
+  )
+
 _tasks = SProxy :: SProxy "tasks"
+_nav = SProxy :: SProxy "nav"
 
 component :: forall i o. H.Component HH.HTML Query i o Aff
 component =
@@ -31,7 +37,8 @@ initialState _ = { history: [] }
 render :: forall act. State -> H.ComponentHTML act ChildSlots Aff
 render state =
   HH.div_
-    [ HH.slot _tasks unit Tasks.component unit absurd
+    [ HH.slot _nav unit Nav.component unit absurd
+    , HH.slot _tasks unit Tasks.component unit absurd
     , HH.p_ [ HH.text "history" ]
     , HH.ol_ $ map (\msg -> HH.li_ [ HH.text msg ]) state.history
     ]
