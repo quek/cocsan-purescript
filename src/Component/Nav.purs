@@ -13,7 +13,11 @@ import Routing.PushState (makeInterface)
 import Web.Event.Event (preventDefault)
 import Web.UIEvent.MouseEvent (MouseEvent, toEvent)
 
-type Slot = H.Slot Query Void
+type Slot = H.Slot Query Message
+
+data Query a = Dummy a
+
+data Message = Changed String
 
 type State = {}
 
@@ -21,9 +25,8 @@ type Path = String
 
 data Action = Go Path MouseEvent
 
-data Query a = Dummy a
 
-component :: forall i o q. H.Component HH.HTML q i o Aff
+component :: forall i q. H.Component HH.HTML q i Message Aff
 component =
   H.mkComponent
     { initialState
@@ -41,10 +44,12 @@ render state =
     , HH.li_ [ HH.a [ HP.href "/bar", HE.onClick (Just <<< (Go "/bar")) ] [ HH.text "bar" ] ]
     ]
 
-handleAction :: forall o. Action → H.HalogenM State Action () o Aff Unit
+handleAction :: Action → H.HalogenM State Action () Message Aff Unit
 handleAction = case _ of
   Go path event -> do
     H.liftEffect do
       event # toEvent # preventDefault
       nav <- makeInterface
       nav.pushState (unsafeToForeign {}) path
+    H.raise (Changed path)
+

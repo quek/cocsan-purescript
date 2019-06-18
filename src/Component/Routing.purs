@@ -13,6 +13,8 @@ import Halogen.HTML as HH
 
 data Query a = ChangeRoute String a
 
+data Action = HandleNav Nav.Message
+
 type State = { history :: Array String }
 
 type ChildSlots =
@@ -28,16 +30,16 @@ component =
   H.mkComponent
     { initialState
     , render
-    , eval: H.mkEval $ H.defaultEval { handleQuery = handleQuery }
+    , eval: H.mkEval $ H.defaultEval { handleQuery = handleQuery, handleAction = handleAction }
     }
 
 initialState :: forall i. i -> State
 initialState _ = { history: [] }
 
-render :: forall act. State -> H.ComponentHTML act ChildSlots Aff
+render :: State -> H.ComponentHTML Action ChildSlots Aff
 render state =
   HH.div_
-    [ HH.slot _nav unit Nav.component unit absurd
+    [ HH.slot _nav unit Nav.component unit (Just <<< HandleNav)
     , HH.slot _tasks unit Tasks.component unit absurd
     , HH.p_ [ HH.text "history" ]
     , HH.ol_ $ map (\msg -> HH.li_ [ HH.text msg ]) state.history
@@ -48,3 +50,8 @@ handleQuery = case _ of
   ChangeRoute msg a -> do
     H.modify_ \st -> { history: st.history `snoc` msg }
     pure (Just a)
+
+handleAction ::forall o m. Action -> H.HalogenM State Action ChildSlots o m Unit
+handleAction = case _ of
+  HandleNav (Nav.Changed path) -> do
+    H.modify_ \st -> { history: st.history `snoc` path }
