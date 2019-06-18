@@ -20,7 +20,7 @@ import Web.Event.EventTarget (addEventListener, eventListener)
 import Web.HTML (window)
 import Web.HTML.Event.PopStateEvent as HCE
 import Web.HTML.Event.PopStateEvent.EventTypes as HCET
-import Web.HTML.Location (href)
+import Web.HTML.Location (pathname)
 import Web.HTML.Window (location)
 import Web.HTML.Window as Window
 
@@ -41,7 +41,7 @@ popStateConsumer
   :: (forall a. Routing.Query a -> Aff (Maybe a))
   -> Coroutine.Consumer HCE.PopStateEvent Aff Unit
 popStateConsumer query = CR.consumer \event -> do
-  path <- liftEffect $ window >>= location >>= href
+  path <- liftEffect $ window >>= location >>= pathname
   H.liftEffect $ log path
   void $ query $ H.tell $ Routing.ChangeRoute path
   pure Nothing
