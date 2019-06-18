@@ -40,9 +40,8 @@ render :: State -> H.ComponentHTML Action ChildSlots Aff
 render state =
   HH.div_
     [ HH.slot _nav unit Nav.component unit (Just <<< HandleNav)
-    , HH.slot _tasks unit Tasks.component unit absurd
-    , HH.p_ [ HH.text "history" ]
     , HH.ol_ $ map (\msg -> HH.li_ [ HH.text msg ]) state.history
+    , HH.slot _tasks unit Tasks.component unit absurd
     ]
 
 handleQuery :: forall act o m a. Query a -> H.HalogenM State act ChildSlots o m (Maybe a)
