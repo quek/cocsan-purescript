@@ -6,6 +6,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'public'),
     filename: '[name]-[contenthash].js',
+    publicPath: '/'
   },
   module: {
     rules: [
@@ -45,6 +46,10 @@ module.exports = {
     proxy: {
       '/__': 'http://localhost:5000',
     },
-    historyApiFallback: true
-  }
+    historyApiFallback: {
+      rewrites: [
+         { from: /./, to: '/' }
+      ]
+    }
+   }
 };

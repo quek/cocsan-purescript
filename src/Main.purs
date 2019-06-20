@@ -49,7 +49,8 @@ popStateConsumer query = CR.consumer \event -> do
 main :: Effect Unit
 main = HA.runHalogenAff do
   body <- HA.awaitBody
-  io <- runUI Routing.component unit body
+  path <- liftEffect $ window >>= location >>= pathname
+  io <- runUI Routing.component path body
   -- Connecting the consumer to the producer initializes both, adding the event
   -- listener to the window and feeding queries back to our component as events
   -- are received.

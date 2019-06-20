@@ -39,7 +39,7 @@ myRoute = root *> oneOf
 
 type State = { history :: Array String, route :: MyRoute }
 
-component :: forall i o. H.Component HH.HTML Query i o Aff
+component :: forall o. H.Component HH.HTML Query String o Aff
 component =
   H.mkComponent
     { initialState
@@ -47,8 +47,11 @@ component =
     , eval: H.mkEval $ H.defaultEval { handleQuery = handleQuery, handleAction = handleAction }
     }
 
-initialState :: forall i. i -> State
-initialState _ = { history: [], route: TaskIndex }
+initialState :: String -> State
+initialState path =
+  case match myRoute path of
+    Right newRoute -> { history: [], route: newRoute }
+    Left _ -> { history: [], route: TaskIndex }
 
 render :: State -> H.ComponentHTML Action ChildSlots Aff
 render state =
