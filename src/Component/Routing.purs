@@ -2,20 +2,22 @@ module Coc.Component.Routing where
 
 import Prelude
 
-import Coc.Component.Tasks as Tasks
 import Coc.Component.Nav as Nav
-import Data.Array (snoc)
+import Coc.Component.Tasks as Tasks
+import Data.Either (Either(..))
+import Data.Foldable (oneOf)
 import Data.Maybe (Maybe(..))
 import Data.Symbol (SProxy(..))
 import Effect.Aff (Aff)
+import Effect.Console (log)
 import Halogen as H
 import Halogen.HTML as HH
+import Routing (match)
+import Routing.Match (Match, end, lit, root)
 
 data Query a = ChangeRoute String a
 
 data Action = HandleNav Nav.Message
-
-type State = { history :: Array String }
 
 type ChildSlots =
   ( tasks :: Tasks.Slot Unit
@@ -24,6 +26,18 @@ type ChildSlots =
 
 _tasks = SProxy :: SProxy "tasks"
 _nav = SProxy :: SProxy "nav"
+
+data MyRoute
+  = TaskIndex
+  | TaskNew
+
+myRoute :: Match MyRoute
+myRoute = root *> oneOf
+  [ TaskIndex <$  (lit "tasks" <* end)
+  , TaskNew <$ (lit "tasks" <* lit "new" <* end)
+  ]
+
+type State = { history :: Array String, route :: MyRoute }
 
 component :: forall i o. H.Component HH.HTML Query i o Aff
 component =
@@ -34,23 +48,35 @@ component =
     }
 
 initialState :: forall i. i -> State
-initialState _ = { history: [] }
+initialState _ = { history: [], route: TaskIndex }
 
 render :: State -> H.ComponentHTML Action ChildSlots Aff
 render state =
   HH.div_
     [ HH.slot _nav unit Nav.component unit (Just <<< HandleNav)
     , HH.ol_ $ map (\msg -> HH.li_ [ HH.text msg ]) state.history
-    , HH.slot _tasks unit Tasks.component unit absurd
+    , case state.route of
+        TaskIndex ->
+          HH.slot _tasks unit Tasks.component unit absurd
+        TaskNew ->
+          HH.text "あたらしく"
     ]
 
-handleQuery :: forall act o m a. Query a -> H.HalogenM State act ChildSlots o m (Maybe a)
+handleQuery :: forall act o a. Query a -> H.HalogenM State act ChildSlots o Aff (Maybe a)
 handleQuery = case _ of
-  ChangeRoute msg a -> do
-    H.modify_ \st -> { history: st.history `snoc` msg }
+  ChangeRoute path a -> do
+    case match myRoute path of
+      Right newRoute ->
+        H.modify_ \st -> st { route = newRoute }
+      Left e -> H.liftEffect $ log e
     pure (Just a)
 
-handleAction ::forall o m. Action -> H.HalogenM State Action ChildSlots o m Unit
+handleAction ::forall o. Action -> H.HalogenM State Action ChildSlots o Aff Unit
 handleAction = case _ of
   HandleNav (Nav.Changed path) -> do
-    H.modify_ \st -> { history: st.history `snoc` path }
+    H.liftEffect $ log path
+    case match myRoute path of
+      Right newRoute -> do
+        H.liftEffect $ log "aaaa"
+        H.modify_ \st -> st { route = newRoute }
+      Left e -> H.liftEffect $ log e

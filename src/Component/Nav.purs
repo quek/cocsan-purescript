@@ -40,8 +40,8 @@ initialState _ = {}
 render :: forall m. State -> H.ComponentHTML Action () m
 render state =
   HH.ul_
-    [ HH.li_ [ HH.a [ HP.href "/foo", HE.onClick (Just <<< (Go "/foo")) ] [ HH.text "foo" ] ]
-    , HH.li_ [ HH.a [ HP.href "/bar", HE.onClick (Just <<< (Go "/bar")) ] [ HH.text "bar" ] ]
+    [ HH.li_ [ HH.a [ HP.href "/tasks", HE.onClick (Just <<< Go "/tasks") ] [ HH.text "index" ] ]
+    , HH.li_ [ HH.a [ HP.href "/tasks/new", HE.onClick (Just <<< Go "/tasks/new") ] [ HH.text "new" ] ]
     ]
 
 handleAction :: Action → H.HalogenM State Action () Message Aff Unit
