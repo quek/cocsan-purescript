@@ -4,6 +4,7 @@ import Prelude
 
 import Coc.Component.Nav as Nav
 import Coc.Component.Tasks as Tasks
+import Coc.Component.TaskNew as TaskNew
 import Data.Either (Either(..))
 import Data.Foldable (oneOf)
 import Data.Maybe (Maybe(..))
@@ -21,10 +22,12 @@ data Action = HandleNav Nav.Message
 
 type ChildSlots =
   ( tasks :: Tasks.Slot Unit
+  , taskNew :: TaskNew.Slot Unit
   , nav :: Nav.Slot Unit
   )
 
 _tasks = SProxy :: SProxy "tasks"
+_taskNew = SProxy :: SProxy "taskNew"
 _nav = SProxy :: SProxy "nav"
 
 data MyRoute
@@ -62,7 +65,7 @@ render state =
         TaskIndex ->
           HH.slot _tasks unit Tasks.component unit absurd
         TaskNew ->
-          HH.text "あたらしく"
+          HH.slot _taskNew unit TaskNew.component unit absurd
     ]
 
 handleQuery :: forall act o a. Query a -> H.HalogenM State act ChildSlots o Aff (Maybe a)
