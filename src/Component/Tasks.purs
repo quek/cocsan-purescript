@@ -5,7 +5,7 @@ import Prelude
 import Assets (assets)
 import Coc.Component.List as CList
 import Coc.Firestore as Firestore
-import Coc.Model.Task (Task(..))
+import Coc.Model.Task (GTask(..), Task)
 import Control.Monad.Except (runExcept)
 import Control.MonadPlus (guard)
 import Data.Either (hush)
@@ -58,7 +58,7 @@ render state =
       [ HH.slot _list unit CList.component unit absurd
       , HH.ul_
         do
-          (Task task) <- state.tasks
+          task <- state.tasks
           pure $ HH.li_ [ HH.text task.name ]
       , HH.button
           [ HP.title label
@@ -87,9 +87,10 @@ handleAction = case _ of
       tasks = do
         doc <- Firestore.docs querySnapshot
         let documentData = Firestore.documentData doc
-        let maybeTask = hush $ runExcept $ (genericDecode opts documentData) :: F Task
+        let maybeTask = hush $ runExcept $ (genericDecode opts documentData) :: F GTask
         guard $ isJust maybeTask
-        pure $ unsafePartial fromJust maybeTask
+        let (GTask rawTask) = unsafePartial fromJust maybeTask
+        pure $ rawTask
     H.modify_ (_ { tasks = tasks})
 
 handleQuery :: forall o m a. Query a -> H.HalogenM State Action () o m (Maybe a)

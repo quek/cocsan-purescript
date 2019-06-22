@@ -5,11 +5,13 @@ import Prelude
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 
-newtype Task = Task
+type Task =
   { name :: String
   , done :: Boolean
   }
 
-derive instance genericTask :: Generic Task _
-instance showTask :: Show Task where show = genericShow
+newtype GTask = GTask Task
+
+derive instance genericTask :: Generic GTask _
+instance showTask :: Show GTask where show = genericShow
 
