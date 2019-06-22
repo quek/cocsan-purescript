@@ -1,5 +1,9 @@
-{ name = "coc"
-, packages = ./packages.dhall
+{ sources =
+    [ "src/**/*.purs", "test/**/*.purs" ]
+, name =
+    "coc"
+, packages =
+    ./packages.dhall
 , dependencies =
     [ "prelude"
     , "console"
@@ -21,6 +25,7 @@
     , "argonaut-codecs"
     , "aff-bus"
     , "aff-promise"
+    , "aff-coroutines"
     , "foreign-generic"
     , "psci-support"
     ]
