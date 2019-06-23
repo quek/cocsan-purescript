@@ -7,6 +7,20 @@ exports.collection = function(collectionName) {
   return firebase.firestore().collection(collectionName);
 };
 
+exports.docImpl = function(documentPath, collectionReference) {
+  return collectionReference.doc(documentPath);
+};
+
+exports.subCollectionImpl = function(collectionPath, documentReference) {
+  return documentReference.collection(collectionPath);
+};
+
+exports.addImpl = function(data, collectionReference) {
+  // Promise<DocumentReference>
+  return collectionReference.add(data.contents);
+};
+
+
 exports.id = function(hasId) {
   return hasId.id;
 };

@@ -7,18 +7,35 @@ import Control.Promise as Promise
 import Data.Function.Uncurried (Fn2, Fn1, runFn1, runFn2)
 import Effect (Effect)
 import Effect.Aff (Aff)
+import Effect.Aff.Compat (EffectFn2, runEffectFn2)
 import Effect.Class (liftEffect)
--- import Effect.Uncurried (EffectFn1, runEffectFn1)
 import Foreign (Foreign)
 
 foreign import data CollectionReference :: Type
 foreign import data QuerySnapshot :: Type
 foreign import data QueryDocumentSnapshot :: Type
 -- foreign import data DocumentData :: Foreign
+foreign import data DocumentReference :: Type
 
 foreign import collection :: String -> CollectionReference
 -- collection :: String -> CollectionReference
 -- collection = collectionImpl
+
+foreign import docImpl :: Fn2 String CollectionReference DocumentReference
+doc :: String -> CollectionReference -> DocumentReference
+doc = runFn2 docImpl
+
+foreign import subCollectionImpl :: Fn2 String DocumentReference CollectionReference
+subCollection :: String -> DocumentReference -> CollectionReference
+subCollection = runFn2 subCollectionImpl
+
+foreign import addImpl :: EffectFn2 Foreign CollectionReference (Promise DocumentReference)
+-- addImpl' :: Foreign -> CollectionReference -> Effect (Promise DocumentReference)
+-- addImpl' = runEffectFn2 addImpl
+-- add :: Foreign -> CollectionReference -> Aff DocumentReference
+-- add d c = liftEffect (addImpl' d c) >>= Promise.toAff
+add :: Foreign -> CollectionReference -> Aff DocumentReference
+add d c = liftEffect (runEffectFn2 addImpl d c) >>= Promise.toAff
 
 foreign import id :: CollectionReference -> String
 

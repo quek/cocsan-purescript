@@ -2,12 +2,16 @@ module Coc.Component.TaskNew where
 
 import Prelude
 
+import Coc.Firebase.Auth as Auth
+import Coc.Firebase.Firestore as Firestore
+import Coc.Model.Task (GTask(..))
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import Data.Symbol (SProxy(..))
 import Effect.Aff (Aff)
 import Effect.Console (log)
+import Foreign.Generic (defaultOptions, genericEncode)
 import Formless as F
 import Halogen as H
 import Halogen.HTML as HH
@@ -67,6 +71,15 @@ component =
 
   handleAction = case _ of
     HandleSubmit task -> do
+      user <- H.liftEffect Auth.currentUser
+      let uid = Auth.uid user
+      H.liftEffect $ log $ uid
+      let d = genericEncode defaultOptions (GTask { name: task.name, done: false })
+      _ <- H.liftAff $
+        Firestore.add d $
+        Firestore.subCollection "tasks" $
+        Firestore.doc uid $
+        Firestore.collection "users"
       H.liftEffect $ log $ show task
       pure unit
 
