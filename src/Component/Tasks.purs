@@ -59,24 +59,26 @@ render state =
 
 handleAction :: forall o. Action → H.HalogenM State Action () o Aff Unit
 handleAction = case _ of
-  Initialize -> do
-    H.liftEffect $ log "初期化です！！！"
-    user <- H.liftEffect Auth.currentUser
-    let uid = Auth.uid user
-    let collection = Firestore.subCollection "tasks" $
-      Firestore.doc uid $
-      Firestore.collection "users"
-    querySnapshot <- H.liftAff $ Firestore.get collection
-    H.liftEffect $ logShow $ Firestore.size querySnapshot
-    let
-      opts = defaultOptions {unwrapSingleConstructors = true}
-      tasks = do
-        doc <- Firestore.docs querySnapshot
-        let documentData = Firestore.documentData doc
-        let maybeTask = hush $ runExcept $ (genericDecode opts documentData) :: F GTask
-        guard $ isJust maybeTask
-        let (GTask taskData) = unsafePartial fromJust maybeTask
-        pure $ { ref: Firestore.ref doc, name: taskData.name, done: taskData.done }
-    H.modify_ (_ { tasks = tasks})
-  Done task ->
-    H.liftEffect $ log $ task.name
+  Initialize -> initialize
+  Done task -> do
+    _ <- H.liftAff $ Firestore.delete task.ref
+    initialize
+  where
+    initialize = do
+      user <- H.liftEffect Auth.currentUser
+      let uid = Auth.uid user
+      let collection = Firestore.subCollection "tasks" $
+        Firestore.doc uid $
+        Firestore.collection "users"
+      querySnapshot <- H.liftAff $ Firestore.get collection
+      H.liftEffect $ logShow $ Firestore.size querySnapshot
+      let
+        opts = defaultOptions {unwrapSingleConstructors = true}
+        tasks = do
+          doc <- Firestore.docs querySnapshot
+          let documentData = Firestore.documentData doc
+          let maybeTask = hush $ runExcept $ (genericDecode opts documentData) :: F GTask
+          guard $ isJust maybeTask
+          let (GTask taskData) = unsafePartial fromJust maybeTask
+          pure $ { ref: Firestore.ref doc, name: taskData.name, done: taskData.done }
+      H.modify_ (_ { tasks = tasks})

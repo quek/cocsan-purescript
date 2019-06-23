@@ -50,3 +50,9 @@ exports.getFieldImpl = function(queryDocumentSnapshot, fieldPath) {
 exports.ref = function(documeentSnapshot) {
   return documeentSnapshot.ref
 };
+
+exports.deleteImpl = function(documentReference) {
+  return function() {
+    return documentReference.delete();
+  }
+}

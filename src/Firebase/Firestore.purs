@@ -56,3 +56,7 @@ getField :: QueryDocumentSnapshot -> String -> String
 getField = runFn2 getFieldImpl
 
 foreign import ref :: QueryDocumentSnapshot -> DocumentReference
+
+foreign import deleteImpl :: DocumentReference -> Effect (Promise Unit)
+delete :: DocumentReference -> Aff Unit
+delete documentReference = liftEffect (deleteImpl documentReference) >>= Promise.toAff

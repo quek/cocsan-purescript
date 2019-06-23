@@ -13,8 +13,7 @@ a {
 }
 
 .tasks {
-  li span {
-    display: inline-block;
-    width: 100%;
+  li {
+    cursor: pointer;
   }
 }
