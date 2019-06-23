@@ -4,6 +4,7 @@ const firebase = require('firebase/app');
 require('firebase/auth');
 require('firebase/firestore');
 require('firebase/storage');
+import './css/main.scss';
 
 
 fetch('/__/firebase/init.json')
