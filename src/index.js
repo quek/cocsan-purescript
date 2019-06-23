@@ -1,9 +1,9 @@
 "use strict";
 
-const firebase = require('firebase/app');
-require('firebase/auth');
-require('firebase/firestore');
-require('firebase/storage');
+import firebase from 'firebase/app';
+import 'firebase/auth';
+import 'firebase/firestore';
+import 'firebase/storage';
 import './css/main.scss';
 
 
