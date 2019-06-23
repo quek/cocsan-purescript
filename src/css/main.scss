@@ -11,3 +11,10 @@ a {
   height: 100px;
   width: 100px; 
 }
+
+.tasks {
+  li span {
+    display: inline-block;
+    width: 100%;
+  }
+}

@@ -12,24 +12,23 @@ import Data.Either (hush)
 import Data.Maybe (Maybe(..), fromJust, isJust)
 import Effect.Aff (Aff)
 import Effect.Console (log, logShow)
-import Foreign (F, unsafeToForeign)
+import Foreign (F)
 import Foreign.Generic (defaultOptions, genericDecode)
 import Halogen (ClassName(..))
 import Halogen as H
 import Halogen.HTML as HH
+import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Partial.Unsafe (unsafePartial)
-import Routing.PushState (makeInterface)
 
 type Slot = H.Slot Query Void
 
-data Query a = IsOn (Boolean -> a)
+data Query a = Void a
 
-type State = { enabled :: Boolean
-             , tasks :: Array Task
+type State = { tasks :: Array Task
              }
 
-data Action = Toggle | Initialize
+data Action = Initialize | Done
 
 component :: forall q i o. H.Component HH.HTML q i o Aff
 component =
@@ -42,31 +41,24 @@ component =
     }
 
 initialState :: forall i. i -> State
-initialState _ = { enabled: false, tasks: [] }
+initialState _ = { tasks: [] }
 
 render :: State -> H.ComponentHTML Action () Aff
 render state =
-  let
-    label = if state.enabled then "On" else "Off"
-  in
-    HH.div_
-      [ HH.ul_
-        do
-          task <- state.tasks
-          pure $ HH.li_ [ HH.text task.name ]
-      , HH.div [ HP.class_ $ ClassName "yarn" ]
-          [ HH.img [ HP.src $ assets "1.png" ]
-        ]
+  HH.div [ HP.class_ $ ClassName "tasks" ]
+    [ HH.ul_
+      do
+        task <- state.tasks
+        pure $ HH.li
+          [ HE.onClick \_ -> Just Done ] 
+          [ HH.text task.name ]
+    , HH.div [ HP.class_ $ ClassName "yarn" ]
+        [ HH.img [ HP.src $ assets "1.png" ]
       ]
+    ]
 
 handleAction :: forall o. Action → H.HalogenM State Action () o Aff Unit
 handleAction = case _ of
-  Toggle -> do
-    state <- H.get
-    H.liftEffect do
-      nav <- makeInterface
-      nav.pushState (unsafeToForeign {}) (if state.enabled then "/foo" else "/bar")
-    H.modify_ \st -> st { enabled = not st.enabled }
   Initialize -> do
     H.liftEffect $ log "初期化です！！！"
     user <- H.liftEffect Auth.currentUser
@@ -86,9 +78,5 @@ handleAction = case _ of
         let (GTask rawTask) = unsafePartial fromJust maybeTask
         pure $ rawTask
     H.modify_ (_ { tasks = tasks})
-
-handleQuery :: forall o m a. Query a -> H.HalogenM State Action () o m (Maybe a)
-handleQuery = case _ of
-  IsOn k -> do
-    state <- H.get
-    pure (Just (k state.enabled))
+  Done ->
+    pure unit
