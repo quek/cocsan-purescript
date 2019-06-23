@@ -14,12 +14,10 @@ import Foreign (Foreign)
 foreign import data CollectionReference :: Type
 foreign import data QuerySnapshot :: Type
 foreign import data QueryDocumentSnapshot :: Type
--- foreign import data DocumentData :: Foreign
+type DocumentData = Foreign
 foreign import data DocumentReference :: Type
 
 foreign import collection :: String -> CollectionReference
--- collection :: String -> CollectionReference
--- collection = collectionImpl
 
 foreign import docImpl :: Fn2 String CollectionReference DocumentReference
 doc :: String -> CollectionReference -> DocumentReference
@@ -29,12 +27,12 @@ foreign import subCollectionImpl :: Fn2 String DocumentReference CollectionRefer
 subCollection :: String -> DocumentReference -> CollectionReference
 subCollection = runFn2 subCollectionImpl
 
-foreign import addImpl :: EffectFn2 Foreign CollectionReference (Promise DocumentReference)
--- addImpl' :: Foreign -> CollectionReference -> Effect (Promise DocumentReference)
+foreign import addImpl :: EffectFn2 DocumentData CollectionReference (Promise DocumentReference)
+-- addImpl' :: DocumentData -> CollectionReference -> Effect (Promise DocumentReference)
 -- addImpl' = runEffectFn2 addImpl
--- add :: Foreign -> CollectionReference -> Aff DocumentReference
+-- add :: DocumentData -> CollectionReference -> Aff DocumentReference
 -- add d c = liftEffect (addImpl' d c) >>= Promise.toAff
-add :: Foreign -> CollectionReference -> Aff DocumentReference
+add :: DocumentData -> CollectionReference -> Aff DocumentReference
 add d c = liftEffect (runEffectFn2 addImpl d c) >>= Promise.toAff
 
 foreign import id :: CollectionReference -> String
@@ -50,8 +48,8 @@ foreign import size :: QuerySnapshot -> Int
 
 foreign import docs :: QuerySnapshot -> Array QueryDocumentSnapshot
 
-foreign import documentDataImpl :: Fn1  QueryDocumentSnapshot Foreign
-documentData :: QueryDocumentSnapshot -> Foreign
+foreign import documentDataImpl :: Fn1  QueryDocumentSnapshot DocumentData
+documentData :: QueryDocumentSnapshot -> DocumentData
 documentData = runFn1 documentDataImpl
 
 foreign import getFieldImpl :: Fn2 QueryDocumentSnapshot String String
