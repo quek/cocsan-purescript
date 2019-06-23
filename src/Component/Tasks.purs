@@ -4,6 +4,7 @@ import Prelude
 
 import Assets (assets)
 import Coc.Component.List as CList
+import Coc.Firebase.Auth as Auth
 import Coc.Firebase.Firestore as Firestore
 import Coc.Model.Task (GTask(..), Task)
 import Control.Monad.Except (runExcept)
@@ -79,8 +80,12 @@ handleAction = case _ of
     H.modify_ \st -> st { enabled = not st.enabled }
   Initialize -> do
     H.liftEffect $ log "初期化です！！！"
-    H.liftEffect $ log $ Firestore.id $ Firestore.collection "tasks"
-    querySnapshot <- H.liftAff $ Firestore.get $ Firestore.collection "tasks"
+    user <- H.liftEffect Auth.currentUser
+    let uid = Auth.uid user
+    let collection = Firestore.subCollection "tasks" $
+      Firestore.doc uid $
+      Firestore.collection "users"
+    querySnapshot <- H.liftAff $ Firestore.get collection
     H.liftEffect $ logShow $ Firestore.size querySnapshot
     let
       opts = defaultOptions {unwrapSingleConstructors = true}
