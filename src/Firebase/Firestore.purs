@@ -1,4 +1,4 @@
-module Coc.Firestore where
+module Coc.Firebase.Firestore where
 
 import Prelude
 

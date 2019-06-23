@@ -4,7 +4,7 @@ import Prelude
 
 import Assets (assets)
 import Coc.Component.List as CList
-import Coc.Firestore as Firestore
+import Coc.Firebase.Firestore as Firestore
 import Coc.Model.Task (GTask(..), Task)
 import Control.Monad.Except (runExcept)
 import Control.MonadPlus (guard)
