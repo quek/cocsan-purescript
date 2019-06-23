@@ -28,7 +28,7 @@ data Query a = Void a
 type State = { tasks :: Array Task
              }
 
-data Action = Initialize | Done
+data Action = Initialize | Done Task
 
 component :: forall q i o. H.Component HH.HTML q i o Aff
 component =
@@ -50,7 +50,7 @@ render state =
       do
         task <- state.tasks
         pure $ HH.li
-          [ HE.onClick \_ -> Just Done ] 
+          [ HE.onClick \_ -> Just $ Done task ] 
           [ HH.text task.name ]
     , HH.div [ HP.class_ $ ClassName "yarn" ]
         [ HH.img [ HP.src $ assets "1.png" ]
@@ -78,5 +78,5 @@ handleAction = case _ of
         let (GTask rawTask) = unsafePartial fromJust maybeTask
         pure $ rawTask
     H.modify_ (_ { tasks = tasks})
-  Done ->
-    pure unit
+  Done task ->
+    H.liftEffect $ log $ show task
