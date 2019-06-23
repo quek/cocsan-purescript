@@ -2,6 +2,7 @@ module Coc.Component.TaskNew where
 
 import Prelude
 
+import Coc.Component.Nav as Nav
 import Coc.Firebase.Auth as Auth
 import Coc.Firebase.Firestore as Firestore
 import Coc.Model.Task (GTask(..))
@@ -44,7 +45,7 @@ input =
 
 -----------------------------------------------------------------------------
 -- component
-type Slot = H.Slot Query Void
+type Slot = H.Slot Query Nav.Message
 
 data Query a = Dummy a
 
@@ -52,7 +53,7 @@ type State = {}
 
 data Action = HandleSubmit TaskInput
 
-component :: forall i message q. H.Component HH.HTML q i message Aff
+component :: forall i q. H.Component HH.HTML q i Nav.Message Aff
 component =
   H.mkComponent
     { initialState
@@ -81,7 +82,7 @@ component =
         Firestore.doc uid $
         Firestore.collection "users"
       H.liftEffect $ log $ show task
-      pure unit
+      H.raise (Nav.Changed "/tasks")
 
   formComponent = F.component (const input) $ F.defaultSpec { render = renderForm, handleEvent = F.raiseResult }
     where

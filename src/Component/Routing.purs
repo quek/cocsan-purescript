@@ -65,7 +65,7 @@ render state =
         TaskIndex ->
           HH.slot _tasks unit Tasks.component unit absurd
         TaskNew ->
-          HH.slot _taskNew unit TaskNew.component unit absurd
+          HH.slot _taskNew unit TaskNew.component unit (Just <<< HandleNav)
     ]
 
 handleQuery :: forall act o a. Query a -> H.HalogenM State act ChildSlots o Aff (Maybe a)
