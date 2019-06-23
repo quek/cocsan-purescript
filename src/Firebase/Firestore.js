@@ -46,3 +46,7 @@ exports.documentDataImpl = function(querySnapshot) {
 exports.getFieldImpl = function(queryDocumentSnapshot, fieldPath) {
   return queryDocumentSnapshot.get(fieldPath);
 };
+
+exports.ref = function(documeentSnapshot) {
+  return documeentSnapshot.ref
+};

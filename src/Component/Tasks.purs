@@ -75,8 +75,8 @@ handleAction = case _ of
         let documentData = Firestore.documentData doc
         let maybeTask = hush $ runExcept $ (genericDecode opts documentData) :: F GTask
         guard $ isJust maybeTask
-        let (GTask rawTask) = unsafePartial fromJust maybeTask
-        pure $ rawTask
+        let (GTask taskData) = unsafePartial fromJust maybeTask
+        pure $ { ref: Firestore.ref doc, name: taskData.name, done: taskData.done }
     H.modify_ (_ { tasks = tasks})
   Done task ->
-    H.liftEffect $ log $ show task
+    H.liftEffect $ log $ task.name
