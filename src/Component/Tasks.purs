@@ -16,6 +16,7 @@ import Effect.Aff (Aff)
 import Effect.Console (log, logShow)
 import Foreign (F, unsafeToForeign)
 import Foreign.Generic (defaultOptions, genericDecode)
+import Halogen (ClassName(..))
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
@@ -56,18 +57,20 @@ render state =
     label = if state.enabled then "On" else "Off"
   in
     HH.div_
-      [ HH.slot _list unit CList.component unit absurd
-      , HH.ul_
+      [ HH.ul_
         do
           task <- state.tasks
           pure $ HH.li_ [ HH.text task.name ]
-      , HH.button
-          [ HP.title label
-          , HE.onClick \_ -> Just Toggle
-          ]
-          [ HH.text label ]
-      , HH.p_ [ HH.text "ねこ" ]
-      , HH.img [ HP.src $ assets "1.png" ]
+      , HH.div [ HP.class_ $ ClassName "ignore" ]
+          [ HH.slot _list unit CList.component unit absurd
+          , HH.button
+              [ HP.title label
+              , HE.onClick \_ -> Just Toggle
+              ]
+              [ HH.text label ]
+          , HH.p_ [ HH.text "ねこ" ]
+          , HH.img [ HP.src $ assets "1.png" ]
+        ]
       ]
 
 handleAction :: forall o. Action → H.HalogenM State Action ChildSlots o Aff Unit
