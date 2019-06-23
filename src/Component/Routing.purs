@@ -83,6 +83,5 @@ handleAction = case _ of
     H.liftEffect $ log path
     case match myRoute path of
       Right newRoute -> do
-        H.liftEffect $ log "aaaa"
         H.modify_ \st -> st { route = newRoute }
       Left e -> H.liftEffect $ log e
