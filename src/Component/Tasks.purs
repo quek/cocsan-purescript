@@ -12,7 +12,6 @@ import Data.Either (hush)
 import Data.Maybe (Maybe(..), fromJust, isJust)
 import Effect.Aff (Aff)
 import Effect.Console (log, logShow)
-import Foreign (F)
 import Foreign.Generic (defaultOptions, genericDecode)
 import Halogen (ClassName(..))
 import Halogen as H
@@ -77,7 +76,7 @@ handleAction = case _ of
         tasks = do
           doc <- Firestore.docs querySnapshot
           let documentData = Firestore.documentData doc
-          let maybeTask = hush $ runExcept $ (genericDecode opts documentData) :: F GTask
+          let maybeTask = hush $ runExcept $ genericDecode opts documentData
           guard $ isJust maybeTask
           let (GTask taskData) = unsafePartial fromJust maybeTask
           pure $ { ref: Firestore.ref doc, name: taskData.name, done: taskData.done }
