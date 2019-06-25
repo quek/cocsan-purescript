@@ -1,11 +1,12 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
 
 module.exports = {
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'public'),
-    filename: '[name]-[contenthash].js',
+    filename: '[name]-[hash].js',
     publicPath: '/'
   },
   module: {
@@ -47,7 +48,8 @@ module.exports = {
     new HtmlWebpackPlugin({
       title: 'CoC',
       template: 'src/index.html'
-    })
+    }),
+    new webpack.HotModuleReplacementPlugin()
   ],
   devServer: {
     contentBase: path.join(__dirname, 'public'),
@@ -58,6 +60,7 @@ module.exports = {
       rewrites: [
          { from: /./, to: '/' }
       ]
-    }
+    },
+    hot: true
    }
 };

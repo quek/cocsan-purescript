@@ -59,13 +59,13 @@ initialState path =
 render :: State -> H.ComponentHTML Action ChildSlots Aff
 render state =
   HH.div_
-    [ HH.slot _nav unit Nav.component unit (Just <<< HandleNav)
-    , HH.ol_ $ map (\msg -> HH.li_ [ HH.text msg ]) state.history
+    [ HH.ol_ $ map (\msg -> HH.li_ [ HH.text msg ]) state.history
     , case state.route of
         TaskIndex ->
           HH.slot _tasks unit Tasks.component unit absurd
         TaskNew ->
           HH.slot _taskNew unit TaskNew.component unit (Just <<< HandleNav)
+    , HH.slot _nav unit Nav.component unit (Just <<< HandleNav)
     ]
 
 handleQuery :: forall act o a. Query a -> H.HalogenM State act ChildSlots o Aff (Maybe a)
