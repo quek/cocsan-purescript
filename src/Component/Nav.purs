@@ -39,10 +39,9 @@ initialState _ = {}
 
 render :: forall m. State -> H.ComponentHTML Action () m
 render state =
-  HH.ul_
-    [ HH.li_ [ HH.a [ HP.href "/tasks", HE.onClick (Just <<< Go "/tasks") ] [ HH.text "index" ] ]
-    , HH.li_ [ HH.a [ HP.href "/tasks/new", HE.onClick (Just <<< Go "/tasks/new") ] [ HH.text "new" ] ]
-    ]
+  HH.button 
+    [ HP.class_ $ H.ClassName "add-button", HE.onClick (Just <<< Go "/tasks/new") ] 
+    [ HH.text "+" ]
 
 handleAction :: Action → H.HalogenM State Action () Message Aff Unit
 handleAction = case _ of
