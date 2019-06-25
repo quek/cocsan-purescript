@@ -1,6 +1,7 @@
 body {
   color: #ddd;
   background-color: black;
+  font-size: 5rem
 }
 
 a {
@@ -13,6 +14,16 @@ a {
 }
 
 .tasks {
+  ul {
+    list-style-type: none;
+    margin-block-start: 0;
+    margin-block-end: 0;
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+    padding-inline-start: 0;
+    margin: 10px;
+  }
+
   li {
     cursor: pointer;
   }
