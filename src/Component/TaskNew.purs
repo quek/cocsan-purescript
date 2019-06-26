@@ -18,6 +18,7 @@ import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
+import Web.UIEvent.KeyboardEvent (KeyboardEvent, key)
 
 -----------------------------------------------------------------------------
 -- form
@@ -84,7 +85,12 @@ component =
       H.liftEffect $ log $ show task
       H.raise (Nav.Changed "/tasks")
 
-  formComponent = F.component (const input) $ F.defaultSpec { render = renderForm, handleEvent = F.raiseResult }
+  formComponent =
+    F.component (const input) $ F.defaultSpec
+      { render = renderForm
+      , handleEvent = F.raiseResult
+      , handleAction = handleFormAction
+      }
     where
     renderForm st@{ form } =
       HH.div_
@@ -92,6 +98,7 @@ component =
             [ HP.value $ F.getInput _name form
             , HP.placeholder "内容"
             , HE.onValueInput $ Just <<< F.set _name
+            , HE.onKeyUp (\event -> Just (F.injAction (KeyUp event)))
             ]
         , HH.text case F.getError _name form of
             Nothing -> ""
@@ -102,4 +109,13 @@ component =
         ]
       where
       _name = SProxy :: SProxy "name"
+    handleFormAction = case _ of
+      KeyUp event -> do
+        H.liftEffect $ log $ key event
+        case key event of
+          "Enter" ->
+            F.handleAction handleFormAction F.raiseResult F.submit
+          _ ->
+            pure unit
 
+data MyFormAction = KeyUp KeyboardEvent
