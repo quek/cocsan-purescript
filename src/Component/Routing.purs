@@ -24,7 +24,6 @@ data Action = HandleNav Nav.Message
 type ChildSlots =
   ( tasks :: Tasks.Slot Unit
   , taskNew :: TaskNew.Slot Unit
-  , nav :: Nav.Slot Unit
   )
 
 _tasks = SProxy :: SProxy "tasks"
@@ -63,10 +62,9 @@ render state =
     [ HP.class_ $ H.ClassName "body" ]
     [ case state.route of
         TaskIndex ->
-          HH.slot _tasks unit Tasks.component unit absurd
+          HH.slot _tasks unit Tasks.component unit (Just <<< HandleNav)
         TaskNew ->
           HH.slot _taskNew unit TaskNew.component unit (Just <<< HandleNav)
-    , HH.slot _nav unit Nav.component unit (Just <<< HandleNav)
     ]
 
 handleQuery :: forall act o a. Query a -> H.HalogenM State act ChildSlots o Aff (Maybe a)

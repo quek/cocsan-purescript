@@ -65,9 +65,9 @@ component =
   initialState _ = {}
 
   render state =
-    HH.div_
-      [ HH.p_ [ HH.text "新規だよ" ]
-      , HH.slot F._formless unit formComponent unit (Just <<< HandleSubmit)
+    HH.div
+      [ HP.class_ $ H.ClassName "TaskNew" ]
+      [ HH.slot F._formless unit formComponent unit (Just <<< HandleSubmit)
       ]
 
   handleAction = case _ of

@@ -40,7 +40,7 @@ initialState _ = {}
 render :: forall m. State -> H.ComponentHTML Action () m
 render state =
   HH.button 
-    [ HP.class_ $ H.ClassName "add-button", HE.onClick (Just <<< Go "/tasks/new") ] 
+    [ HP.class_ $ H.ClassName "add-button", HE.onClick (Just <<< Go "/tasks/new") ]
     [ HH.text "+" ]
 
 handleAction :: Action → H.HalogenM State Action () Message Aff Unit
