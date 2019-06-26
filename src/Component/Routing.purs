@@ -13,6 +13,7 @@ import Effect.Aff (Aff)
 import Effect.Console (log)
 import Halogen as H
 import Halogen.HTML as HH
+import Halogen.HTML.Properties as HP
 import Routing (match)
 import Routing.Match (Match, end, lit, root)
 
@@ -58,9 +59,9 @@ initialState path =
 
 render :: State -> H.ComponentHTML Action ChildSlots Aff
 render state =
-  HH.div_
-    [ HH.ol_ $ map (\msg -> HH.li_ [ HH.text msg ]) state.history
-    , case state.route of
+  HH.div
+    [ HP.class_ $ H.ClassName "body" ]
+    [ case state.route of
         TaskIndex ->
           HH.slot _tasks unit Tasks.component unit absurd
         TaskNew ->
