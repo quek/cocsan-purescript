@@ -2,10 +2,13 @@ html {
   font-size: 10px;
 }
 
+body, button, input, select, textarea {
+  font-size: 4rem;
+}
+
 body {
   color: #ddd;
   background-color: black;
-  font-size: 4rem;
 }
 
 a {
@@ -37,6 +40,5 @@ a {
 }
 
 .add-button {
-  font-size: 8rem;
   padding: 0 4rem;
 }
