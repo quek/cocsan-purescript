@@ -36,8 +36,8 @@ data MyRoute
 
 myRoute :: Match MyRoute
 myRoute = root *> oneOf
-  [ TaskIndex <$  (lit "tasks" <* end)
-  , TaskNew <$ (lit "tasks" <* lit "new" <* end)
+  [ TaskNew <$ (lit "tasks" <* lit "new" <* end)
+  , TaskIndex <$  (lit "tasks" <* end)
   ]
 
 type State = { history :: Array String, route :: MyRoute }

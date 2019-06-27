@@ -12,12 +12,14 @@ import Data.Newtype (class Newtype)
 import Data.Symbol (SProxy(..))
 import Effect.Aff (Aff)
 import Effect.Console (log)
+import Foreign (unsafeToForeign)
 import Foreign.Generic (defaultOptions, genericEncode)
 import Formless as F
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
+import Routing.PushState (makeInterface)
 import Web.UIEvent.KeyboardEvent (KeyboardEvent, key)
 
 -----------------------------------------------------------------------------
@@ -83,7 +85,11 @@ component =
         Firestore.doc uid $
         Firestore.collection "users"
       H.liftEffect $ log $ show task
-      H.raise (Nav.Changed "/tasks")
+      let path = "/tasks"
+      H.liftEffect do
+        nav <- makeInterface
+        nav.pushState (unsafeToForeign {}) path
+      H.raise (Nav.Changed path)
 
   formComponent =
     F.component (const input) $ F.defaultSpec
