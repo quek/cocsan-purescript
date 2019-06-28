@@ -3,7 +3,7 @@ html {
 }
 
 body, button, input, select, textarea {
-  font-size: 4rem;
+  font-size: 3rem;
 }
 
 body {
@@ -37,10 +37,13 @@ a {
 
   li {
     cursor: pointer;
+    padding: 0 0.2rem;
   }
 }
 .add-button {
   padding: 0 4rem;
+  position: fixed;
+  bottom: 1.5rem;
 }
 
 .TaskNew {
