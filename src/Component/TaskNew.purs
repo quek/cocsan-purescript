@@ -7,6 +7,7 @@ import Coc.Firebase.Auth as Auth
 import Coc.Firebase.Firestore as Firestore
 import Coc.Model.Task (GTask(..))
 import Data.Either (Either(..))
+import Data.Foldable (traverse_)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import Data.Symbol (SProxy(..))
@@ -21,6 +22,7 @@ import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Routing.PushState (makeInterface)
 import Web.UIEvent.KeyboardEvent (KeyboardEvent, key)
+import Web.HTML.HTMLElement (focus)
 
 -----------------------------------------------------------------------------
 -- form
@@ -94,10 +96,12 @@ component =
   formComponent =
     F.component (const input) $ F.defaultSpec
       { render = renderForm
+      , initialize = Just InitializeForm
       , handleEvent = F.raiseResult
       , handleAction = handleFormAction
       }
     where
+    inputRef = H.RefLabel "input"
     renderForm st@{ form } =
       HH.div_
         [ HH.input
@@ -105,6 +109,7 @@ component =
             , HP.placeholder "内容"
             , HE.onValueInput $ Just <<< F.set _name
             , HE.onKeyUp (\event -> Just (F.injAction (KeyUp event)))
+            , HP.ref inputRef
             ]
         , HH.text case F.getError _name form of
             Nothing -> ""
@@ -116,6 +121,9 @@ component =
       where
       _name = SProxy :: SProxy "name"
     handleFormAction = case _ of
+      InitializeForm -> do
+        H.getHTMLElementRef inputRef >>= traverse_ \element -> do
+          H.liftEffect $ focus element
       KeyUp event -> do
         H.liftEffect $ log $ key event
         case key event of
@@ -124,4 +132,4 @@ component =
           _ ->
             pure unit
 
-data MyFormAction = KeyUp KeyboardEvent
+data MyFormAction = InitializeForm | KeyUp KeyboardEvent
