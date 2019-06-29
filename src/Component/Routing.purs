@@ -2,9 +2,9 @@ module Coc.Component.Routing where
 
 import Prelude
 
-import Coc.Component.Nav as Nav
-import Coc.Component.Tasks as Tasks
 import Coc.Component.TaskNew as TaskNew
+import Coc.Component.Tasks as Tasks
+import Coc.Navigation (Message(..))
 import Data.Either (Either(..))
 import Data.Foldable (oneOf)
 import Data.Maybe (Maybe(..))
@@ -19,7 +19,7 @@ import Routing.Match (Match, end, lit, root)
 
 data Query a = ChangeRoute String a
 
-data Action = HandleNav Nav.Message
+data Action = HandleNav Message
 
 type ChildSlots =
   ( tasks :: Tasks.Slot Unit
@@ -78,7 +78,7 @@ handleQuery = case _ of
 
 handleAction ::forall o. Action -> H.HalogenM State Action ChildSlots o Aff Unit
 handleAction = case _ of
-  HandleNav (Nav.Changed path) -> do
+  HandleNav (UrlChanged path) -> do
     H.liftEffect $ log path
     case match myRoute path of
       Right newRoute -> do

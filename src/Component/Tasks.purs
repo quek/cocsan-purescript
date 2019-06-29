@@ -7,6 +7,7 @@ import Coc.Component.Nav as Nav
 import Coc.Firebase.Auth as Auth
 import Coc.Firebase.Firestore as Firestore
 import Coc.Model.Task (GTask(..), Task)
+import Coc.Navigation (Message(..))
 import Control.Monad.Except (runExcept)
 import Control.MonadPlus (guard)
 import Data.Either (hush)
@@ -22,14 +23,14 @@ import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Partial.Unsafe (unsafePartial)
 
-type Slot = H.Slot Query Nav.Message
+type Slot = H.Slot Query Message
 
 data Query a = Void a
 
 type State = { tasks :: Array Task
              }
 
-data Action = Initialize | Done Task | HandleNav Nav.Message
+data Action = Initialize | Done Task | HandleNav Message
 
 type ChildSlots =
   ( nav :: Nav.Slot Unit
@@ -38,7 +39,7 @@ type ChildSlots =
 _nav = SProxy :: SProxy "nav"
 
 
-component :: forall q i. H.Component HH.HTML q i Nav.Message Aff
+component :: forall q i. H.Component HH.HTML q i Message Aff
 component =
   H.mkComponent
     { initialState
@@ -66,14 +67,14 @@ render state =
       ]
     ]
 
-handleAction :: Action → H.HalogenM State Action ChildSlots Nav.Message Aff Unit
+handleAction :: Action → H.HalogenM State Action ChildSlots Message Aff Unit
 handleAction = case _ of
   Initialize -> initialize
   Done task -> do
     _ <- H.liftAff $ Firestore.delete task.ref
     initialize
-  HandleNav (Nav.Changed path) -> do
-    H.raise (Nav.Changed path)
+  HandleNav (UrlChanged path) -> do
+    H.raise (UrlChanged path)
   where
     initialize = do
       user <- H.liftEffect Auth.currentUser

@@ -2,10 +2,10 @@ module Coc.Component.TaskNew where
 
 import Prelude
 
-import Coc.Component.Nav as Nav
 import Coc.Firebase.Auth as Auth
 import Coc.Firebase.Firestore as Firestore
 import Coc.Model.Task (GTask(..))
+import Coc.Navigation (Message, go)
 import Data.Either (Either(..))
 import Data.Foldable (traverse_)
 import Data.Maybe (Maybe(..))
@@ -21,8 +21,8 @@ import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Routing.PushState (makeInterface)
-import Web.UIEvent.KeyboardEvent (KeyboardEvent, key)
 import Web.HTML.HTMLElement (focus)
+import Web.UIEvent.KeyboardEvent (KeyboardEvent, key)
 
 -----------------------------------------------------------------------------
 -- form
@@ -50,7 +50,7 @@ input =
 
 -----------------------------------------------------------------------------
 -- component
-type Slot = H.Slot Query Nav.Message
+type Slot = H.Slot Query Message
 
 data Query a = Dummy a
 
@@ -58,7 +58,7 @@ type State = {}
 
 data Action = HandleSubmit TaskInput
 
-component :: forall i q. H.Component HH.HTML q i Nav.Message Aff
+component :: forall i q. H.Component HH.HTML q i Message Aff
 component =
   H.mkComponent
     { initialState
@@ -87,11 +87,7 @@ component =
         Firestore.doc uid $
         Firestore.collection "users"
       H.liftEffect $ log $ show task
-      let path = "/tasks"
-      H.liftEffect do
-        nav <- makeInterface
-        nav.pushState (unsafeToForeign {}) path
-      H.raise (Nav.Changed path)
+      go "/tasks"
 
   formComponent =
     F.component (const input) $ F.defaultSpec
