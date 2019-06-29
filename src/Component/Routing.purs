@@ -51,38 +51,37 @@ component =
     , render
     , eval: H.mkEval $ H.defaultEval { handleQuery = handleQuery, handleAction = handleAction }
     }
+  where
+  initialState :: String -> State
+  initialState path =
+    case match myRoute path of
+      Right newRoute -> { history: [], route: newRoute }
+      Left _ -> { history: [], route: TaskIndex }
 
-initialState :: String -> State
-initialState path =
-  case match myRoute path of
-    Right newRoute -> { history: [], route: newRoute }
-    Left _ -> { history: [], route: TaskIndex }
+  render :: State -> H.ComponentHTML Action ChildSlots Aff
+  render state =
+    HH.div
+      [ HP.class_ $ H.ClassName "body" ]
+      [ case state.route of
+          TaskIndex ->
+            HH.slot _tasks unit Tasks.component unit (Just <<< HandleNav)
+          TaskNew ->
+            HH.slot _taskNew unit TaskNew.component unit (Just <<< HandleNav)
+      ]
 
-render :: State -> H.ComponentHTML Action ChildSlots Aff
-render state =
-  HH.div
-    [ HP.class_ $ H.ClassName "body" ]
-    [ case state.route of
-        TaskIndex ->
-          HH.slot _tasks unit Tasks.component unit (Just <<< HandleNav)
-        TaskNew ->
-          HH.slot _taskNew unit TaskNew.component unit (Just <<< HandleNav)
-    ]
+  handleQuery :: forall a. Query a -> H.HalogenM State Action ChildSlots o Aff (Maybe a)
+  handleQuery = case _ of
+    ChangeRoute path a -> do
+      updateRoute path
+      pure (Just a)
 
-handleQuery :: forall o a. Query a -> H.HalogenM State Action ChildSlots o Aff (Maybe a)
-handleQuery = case _ of
-  ChangeRoute path a -> do
-    updateRoute path
-    pure (Just a)
+  handleAction :: Action -> H.HalogenM State Action ChildSlots o Aff Unit
+  handleAction = case _ of
+    HandleNav (Navigation.UrlChanged path) -> do
+      updateRoute path
 
-handleAction ::forall o. Action -> H.HalogenM State Action ChildSlots o Aff Unit
-handleAction = case _ of
-  HandleNav (Navigation.UrlChanged path) -> do
-    H.liftEffect $ log path
-    updateRoute path
-
-updateRoute path =
-  case match myRoute path of
-    Right newRoute -> do
-      H.modify_ \st -> st { route = newRoute }
-    Left e -> H.liftEffect $ log e
+  updateRoute path =
+    case match myRoute path of
+      Right newRoute -> do
+        H.modify_ \st -> st { route = newRoute }
+      Left e -> H.liftEffect $ log e

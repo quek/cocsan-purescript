@@ -14,9 +14,7 @@ import Web.UIEvent.MouseEvent (MouseEvent, toEvent)
 
 type Message = Navigation.Message
 
-type Slot = H.Slot Query Message
-
-data Query a = Dummy a
+type Slot p = forall query. H.Slot query Message p
 
 type State = {}
 
