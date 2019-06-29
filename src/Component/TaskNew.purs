@@ -21,6 +21,7 @@ import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Web.HTML.HTMLElement (focus)
 import Web.UIEvent.KeyboardEvent (KeyboardEvent, key)
+import Effect.Aff.Class (class MonadAff)
 
 -----------------------------------------------------------------------------
 -- form
@@ -54,7 +55,7 @@ type State = {}
 
 data Action = HandleSubmit TaskInput
 
-component :: forall i q. H.Component HH.HTML q i Message Aff
+component :: forall i q m. MonadAff m => H.Component HH.HTML q i Message m
 component =
   H.mkComponent
     { initialState

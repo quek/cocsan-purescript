@@ -23,6 +23,7 @@ import Web.HTML.Event.PopStateEvent.EventTypes as HCET
 import Web.HTML.Location (pathname)
 import Web.HTML.Window (location)
 import Web.HTML.Window as Window
+import Coc.AppM (runAppM)
 
 -- A producer coroutine that emits messages whenever the window emits a
 -- `hashchange` event.
@@ -50,8 +51,7 @@ main :: Effect Unit
 main = HA.runHalogenAff do
   body <- HA.awaitBody
   path <- liftEffect $ window >>= location >>= pathname
-  io <- runUI Routing.component path body
-  -- Connecting the consumer to the producer initializes both, adding the event
-  -- listener to the window and feeding queries back to our component as events
-  -- are received.
+  let 
+    component = H.hoist (runAppM { foo: "にゃ"}) Routing.component
+  io <- runUI component path body
   Coroutine.runProcess (popStateProducer Coroutine.$$ popStateConsumer io.query)

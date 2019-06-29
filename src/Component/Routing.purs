@@ -9,13 +9,13 @@ import Data.Either (Either(..))
 import Data.Foldable (oneOf)
 import Data.Maybe (Maybe(..))
 import Data.Symbol (SProxy(..))
-import Effect.Aff (Aff)
 import Effect.Console (log)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
 import Routing (match)
 import Routing.Match (Match, end, lit, root)
+import Effect.Aff.Class (class MonadAff)
 
 data Query a = ChangeRoute String a
 
@@ -45,7 +45,7 @@ myRoute = root *> oneOf
 type State =
   { route :: MyRoute }
 
-component :: forall o. H.Component HH.HTML Query String o Aff
+component :: forall o m. MonadAff m => H.Component HH.HTML Query String o m
 component =
   H.mkComponent
     { initialState
@@ -60,7 +60,7 @@ component =
          Left _ -> TaskIndex
     }
 
-  render :: State -> H.ComponentHTML Action ChildSlots Aff
+  render :: State -> H.ComponentHTML Action ChildSlots m
   render state =
     HH.div
       [ HP.class_ $ H.ClassName "body" ]
@@ -71,13 +71,13 @@ component =
             HH.slot _taskNew unit TaskNew.component unit (Just <<< HandleNav)
       ]
 
-  handleQuery :: forall a. Query a -> H.HalogenM State Action ChildSlots o Aff (Maybe a)
+  handleQuery :: forall a. Query a -> H.HalogenM State Action ChildSlots o m (Maybe a)
   handleQuery = case _ of
     ChangeRoute path a -> do
       updateRoute path
       pure (Just a)
 
-  handleAction :: Action -> H.HalogenM State Action ChildSlots o Aff Unit
+  handleAction :: Action -> H.HalogenM State Action ChildSlots o m Unit
   handleAction = case _ of
     HandleNav (Navigation.UrlChanged path) -> do
       updateRoute path
