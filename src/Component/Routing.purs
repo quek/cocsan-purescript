@@ -4,7 +4,7 @@ import Prelude
 
 import Coc.Component.TaskNew as TaskNew
 import Coc.Component.Tasks as Tasks
-import Coc.Navigation (Message(..))
+import Coc.Navigation as Navigation
 import Data.Either (Either(..))
 import Data.Foldable (oneOf)
 import Data.Maybe (Maybe(..))
@@ -18,6 +18,8 @@ import Routing (match)
 import Routing.Match (Match, end, lit, root)
 
 data Query a = ChangeRoute String a
+
+type Message = Navigation.Message
 
 data Action = HandleNav Message
 
@@ -75,7 +77,7 @@ handleQuery = case _ of
 
 handleAction ::forall o. Action -> H.HalogenM State Action ChildSlots o Aff Unit
 handleAction = case _ of
-  HandleNav (UrlChanged path) -> do
+  HandleNav (Navigation.UrlChanged path) -> do
     H.liftEffect $ log path
     updateRoute path
 
