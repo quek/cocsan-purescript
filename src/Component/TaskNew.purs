@@ -48,9 +48,7 @@ input =
 
 -----------------------------------------------------------------------------
 -- component
-type Slot = H.Slot Query Message
-
-data Query a = Dummy a
+type Slot p = forall query. H.Slot query Message p
 
 type State = {}
 
