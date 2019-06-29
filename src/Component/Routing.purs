@@ -67,20 +67,20 @@ render state =
           HH.slot _taskNew unit TaskNew.component unit (Just <<< HandleNav)
     ]
 
-handleQuery :: forall act o a. Query a -> H.HalogenM State act ChildSlots o Aff (Maybe a)
+handleQuery :: forall o a. Query a -> H.HalogenM State Action ChildSlots o Aff (Maybe a)
 handleQuery = case _ of
   ChangeRoute path a -> do
-    case match myRoute path of
-      Right newRoute ->
-        H.modify_ \st -> st { route = newRoute }
-      Left e -> H.liftEffect $ log e
+    updateRoute path
     pure (Just a)
 
 handleAction ::forall o. Action -> H.HalogenM State Action ChildSlots o Aff Unit
 handleAction = case _ of
   HandleNav (UrlChanged path) -> do
     H.liftEffect $ log path
-    case match myRoute path of
-      Right newRoute -> do
-        H.modify_ \st -> st { route = newRoute }
-      Left e -> H.liftEffect $ log e
+    updateRoute path
+
+updateRoute path =
+  case match myRoute path of
+    Right newRoute -> do
+      H.modify_ \st -> st { route = newRoute }
+    Left e -> H.liftEffect $ log e
