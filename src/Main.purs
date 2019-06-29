@@ -2,6 +2,7 @@ module Main where
 
 import Prelude
 
+import Coc.AppM (runAppM)
 import Coc.Component.Routing as Routing
 import Control.Coroutine as CR
 import Control.Coroutine as Coroutine
@@ -11,11 +12,14 @@ import Data.Foldable (traverse_)
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Effect.Aff (Aff)
+import Effect.Aff.AVar (AVar)
+import Effect.Aff.AVar as AVar
 import Effect.Class (liftEffect)
 import Effect.Console (log)
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.VDom.Driver (runUI)
+import Routing.PushState (makeInterface)
 import Web.Event.EventTarget (addEventListener, eventListener)
 import Web.HTML (window)
 import Web.HTML.Event.PopStateEvent as HCE
@@ -23,7 +27,6 @@ import Web.HTML.Event.PopStateEvent.EventTypes as HCET
 import Web.HTML.Location (pathname)
 import Web.HTML.Window (location)
 import Web.HTML.Window as Window
-import Coc.AppM (runAppM)
 
 -- A producer coroutine that emits messages whenever the window emits a
 -- `hashchange` event.
@@ -49,9 +52,12 @@ popStateConsumer query = CR.consumer \event -> do
 
 main :: Effect Unit
 main = HA.runHalogenAff do
+  globalMessage <- AVar.empty
+  pushStateInterface <- H.liftEffect $ makeInterface
   body <- HA.awaitBody
   path <- liftEffect $ window >>= location >>= pathname
   let 
-    component = H.hoist (runAppM { foo: "にゃ"}) Routing.component
+    environment = { globalMessage, pushStateInterface }
+    component = H.hoist (runAppM environment) Routing.component
   io <- runUI component path body
   Coroutine.runProcess (popStateProducer Coroutine.$$ popStateConsumer io.query)
