@@ -7,7 +7,7 @@ import Coc.Component.Nav as Nav
 import Coc.Firebase.Auth as Auth
 import Coc.Firebase.Firestore as Firestore
 import Coc.Model.Task (GTask(..), Task)
-import Coc.Navigation (Message(..))
+import Coc.Navigation as Navigation
 import Control.Monad.Except (runExcept)
 import Control.MonadPlus (guard)
 import Data.Either (hush)
@@ -22,6 +22,8 @@ import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Partial.Unsafe (unsafePartial)
+
+type Message = Navigation.Message
 
 type Slot = H.Slot Query Message
 
@@ -73,8 +75,8 @@ handleAction = case _ of
   Done task -> do
     _ <- H.liftAff $ Firestore.delete task.ref
     initialize
-  HandleNav (UrlChanged path) -> do
-    H.raise (UrlChanged path)
+  HandleNav (Navigation.UrlChanged path) -> do
+    H.raise (Navigation.UrlChanged path)
   where
     initialize = do
       user <- H.liftEffect Auth.currentUser

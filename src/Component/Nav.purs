@@ -2,7 +2,7 @@ module Coc.Component.Nav where
 
 import Prelude
 
-import Coc.Navigation (Message, go)
+import Coc.Navigation as Navigation
 import Data.Maybe (Maybe(..))
 import Effect.Aff (Aff)
 import Halogen as H
@@ -11,6 +11,8 @@ import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Web.Event.Event (preventDefault)
 import Web.UIEvent.MouseEvent (MouseEvent, toEvent)
+
+type Message = Navigation.Message
 
 type Slot = H.Slot Query Message
 
@@ -44,4 +46,4 @@ handleAction :: Action → H.HalogenM State Action () Message Aff Unit
 handleAction = case _ of
   Go path event -> do
     H.liftEffect $ event # toEvent # preventDefault
-    go path
+    Navigation.go path
