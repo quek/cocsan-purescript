@@ -13,14 +13,12 @@ import Data.Newtype (class Newtype)
 import Data.Symbol (SProxy(..))
 import Effect.Aff (Aff)
 import Effect.Console (log)
-import Foreign (unsafeToForeign)
 import Foreign.Generic (defaultOptions, genericEncode)
 import Formless as F
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import Routing.PushState (makeInterface)
 import Web.HTML.HTMLElement (focus)
 import Web.UIEvent.KeyboardEvent (KeyboardEvent, key)
 
@@ -121,7 +119,6 @@ component =
         H.getHTMLElementRef inputRef >>= traverse_ \element -> do
           H.liftEffect $ focus element
       KeyUp event -> do
-        H.liftEffect $ log $ key event
         case key event of
           "Enter" ->
             F.handleAction handleFormAction F.raiseResult F.submit
