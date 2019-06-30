@@ -1,12 +1,17 @@
+{-
+https://dev.to/rinn7e/global-message-passing-inside-purescript-halogen-30ol
+https://github.com/thomashoneyman/purescript-halogen-realworld/blob/halogen-5/src/AppM.purs
+-}
 module Coc.AppM where
 
 import Prelude
 
 import Control.Monad.Reader.Trans (class MonadAsk, ReaderT, asks, runReaderT)
 import Control.Monad.Trans.Class (lift)
-import Effect.AVar (AVar, put)
+import Effect.AVar (AVar)
 import Effect.Aff (Aff)
-import Effect.Aff.Class (class MonadAff)
+import Effect.Aff.AVar (put)
+import Effect.Aff.Class (class MonadAff, liftAff)
 import Effect.Class (class MonadEffect)
 import Effect.Console as Console
 import Halogen as H
@@ -41,16 +46,16 @@ instance monadAskAppM :: TypeEquals e Env => MonadAsk e AppM where
 --   globalMessage <- asks _.globalMessage
 --   H.liftAff $ put query globalMessage
 
--- class Monad m <= Navigate m where
---   navigate :: String -> m Unit
+class Monad m <= Navigate m where
+  navigate :: String -> m Unit
 
--- instance navigateHalogenM :: Navigate m => Navigate (H.HalogenM st act slots msg m) where
---   navigate = lift <<< navigate
+instance navigateHalogenM :: Navigate m => Navigate (H.HalogenM st act slots msg m) where
+  navigate = lift <<< navigate
 
--- instance navigateAppM :: Navigate AppM where
---   navigate path = do
---     globalMessage <- asks _.globalMessage
---     H.liftAff $ put (NavigateG path) globalMessage
+instance navigateAppM :: Navigate AppM where
+  navigate path = do
+    globalMessage <- asks _.globalMessage
+    liftAff $ put (NavigateG path) globalMessage
 
 
 class Monad m <= LogMessages m where
@@ -60,12 +65,5 @@ instance logMessagesHalogenM :: LogMessages m => LogMessages (H.HalogenM st act 
   logMessage = lift <<< logMessage
 
 instance logMessagesAppM :: LogMessages AppM where
-  logMessage log = do 
+  logMessage log = do
     H.liftEffect $ Console.log log
-
-
-
-{-
-https://dev.to/rinn7e/global-message-passing-inside-purescript-halogen-30ol
-https://github.com/thomashoneyman/purescript-halogen-realworld/blob/halogen-5/src/AppM.purs
--}
