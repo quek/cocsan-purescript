@@ -54,6 +54,7 @@ main :: Effect Unit
 main = HA.runHalogenAff do
   globalMessage <- AVar.empty
   pushStateInterface <- H.liftEffect $ makeInterface
+  -- TODO これで初期ルートを設定する
   path <- liftEffect $ window >>= location >>= pathname
   let
     environment = { globalMessage, pushStateInterface }
