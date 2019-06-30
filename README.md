@@ -5,6 +5,7 @@ yarn
 yarn firebase login
 yarn firebase use
 yarn spago install
+yarn deploy # apply firestore.indexes.json
 yarn start
 ```
 
