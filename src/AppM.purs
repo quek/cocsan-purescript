@@ -2,19 +2,21 @@ module Coc.AppM where
 
 import Prelude
 
-import Control.Monad.Reader.Trans (class MonadAsk, ReaderT, asks, lift, runReaderT)
+import Control.Monad.Reader.Trans (class MonadAsk, ReaderT, asks, runReaderT)
+import Control.Monad.Trans.Class (lift)
 import Effect.AVar (AVar, put)
 import Effect.Aff (Aff)
 import Effect.Aff.Class (class MonadAff)
 import Effect.Class (class MonadEffect)
+import Effect.Console as Console
 import Halogen as H
 import Routing.PushState (PushStateInterface)
 import Type.Equality (class TypeEquals, from)
 
-data GlobalMessage 
+data GlobalMessage
   = NavigateG String
 
-type Env = 
+type Env =
   { globalMessage :: AVar GlobalMessage
   , pushStateInterface :: PushStateInterface
   }
@@ -39,16 +41,29 @@ instance monadAskAppM :: TypeEquals e Env => MonadAsk e AppM where
 --   globalMessage <- asks _.globalMessage
 --   H.liftAff $ put query globalMessage
 
-class Monad m <= Navigate m where
-  navigate :: String -> m Unit
+-- class Monad m <= Navigate m where
+--   navigate :: String -> m Unit
 
-instance navigateHalogenM :: Navigate m => Navigate (H.HalogenM st act slots msg m) where
-  navigate path = lift <<< navigate path
+-- instance navigateHalogenM :: Navigate m => Navigate (H.HalogenM st act slots msg m) where
+--   navigate = lift <<< navigate
 
-instance navigateAppM :: Navigate AppM where
-  navigate path = do
-    globalMessage <- asks _.globalMessage
-    H.liftAff $ put (NavigateG path) globalMessage
+-- instance navigateAppM :: Navigate AppM where
+--   navigate path = do
+--     globalMessage <- asks _.globalMessage
+--     H.liftAff $ put (NavigateG path) globalMessage
+
+
+class Monad m <= LogMessages m where
+  logMessage :: String -> m Unit
+
+instance logMessagesHalogenM :: LogMessages m => LogMessages (H.HalogenM st act slots msg m) where
+  logMessage = lift <<< logMessage
+
+instance logMessagesAppM :: LogMessages AppM where
+  logMessage log = do 
+    H.liftEffect $ Console.log log
+
+
 
 {-
 https://dev.to/rinn7e/global-message-passing-inside-purescript-halogen-30ol

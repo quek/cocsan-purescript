@@ -2,6 +2,7 @@ module Coc.Component.Routing where
 
 import Prelude
 
+import Coc.AppM (class LogMessages)
 import Coc.Component.TaskNew as TaskNew
 import Coc.Component.Tasks as Tasks
 import Coc.Navigation as Navigation
@@ -9,13 +10,13 @@ import Data.Either (Either(..))
 import Data.Foldable (oneOf)
 import Data.Maybe (Maybe(..))
 import Data.Symbol (SProxy(..))
+import Effect.Aff.Class (class MonadAff)
 import Effect.Console (log)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
 import Routing (match)
 import Routing.Match (Match, end, lit, root)
-import Effect.Aff.Class (class MonadAff)
 
 data Query a = ChangeRoute String a
 
@@ -45,7 +46,10 @@ myRoute = root *> oneOf
 type State =
   { route :: MyRoute }
 
-component :: forall o m. MonadAff m => H.Component HH.HTML Query String o m
+component :: forall o m.
+             MonadAff m =>
+             LogMessages m =>
+             H.Component HH.HTML Query String o m
 component =
   H.mkComponent
     { initialState

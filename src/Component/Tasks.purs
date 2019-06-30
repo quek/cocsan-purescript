@@ -3,6 +3,7 @@ module Coc.Component.Tasks where
 import Prelude
 
 import Assets (assets)
+import Coc.AppM (class LogMessages, logMessage)
 import Coc.Component.Nav as Nav
 import Coc.Firebase.Auth as Auth
 import Coc.Firebase.Firestore as Firestore
@@ -13,6 +14,7 @@ import Control.MonadPlus (guard)
 import Data.Either (hush)
 import Data.Maybe (Maybe(..), fromJust, isJust)
 import Data.Symbol (SProxy(..))
+import Effect.Aff.Class (class MonadAff)
 import Effect.Console (logShow)
 import Foreign.Generic (defaultOptions, genericDecode)
 import Halogen (ClassName(..))
@@ -21,7 +23,6 @@ import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Partial.Unsafe (unsafePartial)
-import Effect.Aff.Class (class MonadAff)
 
 type Message = Navigation.Message
 
@@ -41,7 +42,11 @@ type ChildSlots =
 _nav = SProxy :: SProxy "nav"
 
 
-component :: forall q i m. MonadAff m => H.Component HH.HTML q i Message m
+component
+  :: forall q i m
+     . MonadAff m
+     => LogMessages m
+     => H.Component HH.HTML q i Message m
 component =
   H.mkComponent
     { initialState
@@ -78,6 +83,7 @@ component =
       H.raise (Navigation.UrlChanged path)
     where
       initialize = do
+        logMessage "Hello"
         user <- H.liftEffect Auth.currentUser
         let uid = Auth.uid user
         let collection = Firestore.subCollection "tasks" $
