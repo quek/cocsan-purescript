@@ -24,10 +24,10 @@ type Path = String
 data Action = Go Path MouseEvent
 
 
-component :: forall i q m
+component :: forall q m
              . MonadAff m
              => Navigate m
-             => H.Component HH.HTML q i Message m
+             => H.Component HH.HTML q Unit Message m
 component =
   H.mkComponent
     { initialState
@@ -35,7 +35,7 @@ component =
     , eval: H.mkEval $ H.defaultEval { handleAction = handleAction }
     }
   where
-  initialState :: i -> State
+  initialState :: Unit -> State
   initialState _ = {}
 
   render :: State -> H.ComponentHTML Action () m

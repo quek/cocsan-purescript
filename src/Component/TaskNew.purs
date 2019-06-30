@@ -54,7 +54,7 @@ type State = {}
 
 data Action = HandleSubmit TaskInput
 
-component :: forall i q m. MonadAff m => H.Component HH.HTML q i Message m
+component :: forall q m. MonadAff m => H.Component HH.HTML q Unit Message m
 component =
   H.mkComponent
     { initialState
@@ -62,7 +62,6 @@ component =
     , eval: H.mkEval $ H.defaultEval { handleAction = handleAction }
     }
   where
-  initialState :: i -> State
   initialState _ = {}
 
   render state =
