@@ -2,15 +2,16 @@ module Coc.Component.TaskNew where
 
 import Prelude
 
+import Coc.AppM (class Navigate, navigate)
 import Coc.Firebase.Auth as Auth
 import Coc.Firebase.Firestore as Firestore
 import Coc.Model.Task (GTask(..))
-import Coc.Navigation (Message, go)
 import Data.Either (Either(..))
 import Data.Foldable (traverse_)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import Data.Symbol (SProxy(..))
+import Effect.Aff.Class (class MonadAff)
 import Effect.Console (log)
 import Foreign.Generic (defaultOptions, genericEncode)
 import Formless as F
@@ -20,7 +21,6 @@ import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Web.HTML.HTMLElement (focus)
 import Web.UIEvent.KeyboardEvent (KeyboardEvent, key)
-import Effect.Aff.Class (class MonadAff)
 
 -----------------------------------------------------------------------------
 -- form
@@ -48,13 +48,16 @@ input =
 
 -----------------------------------------------------------------------------
 -- component
-type Slot p = forall query. H.Slot query Message p
+type Slot p = forall query. H.Slot query Void p
 
 type State = {}
 
 data Action = HandleSubmit TaskInput
 
-component :: forall q m. MonadAff m => H.Component HH.HTML q Unit Message m
+component :: forall q m
+             . MonadAff m
+             => Navigate m
+             => H.Component HH.HTML q Unit Void m
 component =
   H.mkComponent
     { initialState
@@ -82,7 +85,7 @@ component =
         Firestore.doc uid $
         Firestore.collection "users"
       H.liftEffect $ log $ show task
-      go "/tasks"
+      navigate "/tasks"
 
   formComponent =
     F.component (const input) $ F.defaultSpec

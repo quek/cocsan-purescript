@@ -8,7 +8,6 @@ import Coc.Component.Nav as Nav
 import Coc.Firebase.Auth as Auth
 import Coc.Firebase.Firestore as Firestore
 import Coc.Model.Task (GTask(..), Task)
-import Coc.Navigation as Navigation
 import Control.Monad.Except (runExcept)
 import Control.MonadPlus (guard)
 import Data.Either (hush)
@@ -24,16 +23,14 @@ import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Partial.Unsafe (unsafePartial)
 
-type Message = Navigation.Message
-
-type Slot = H.Slot Query Message
+type Slot = H.Slot Query Void
 
 data Query a = Void a
 
 type State = { tasks :: Array Task
              }
 
-data Action = Initialize | Done Task | HandleNav Message
+data Action = Initialize | Done Task
 
 type ChildSlots =
   ( nav :: Nav.Slot Unit
@@ -47,7 +44,7 @@ component
      . MonadAff m
      => LogMessages m
      => Navigate m
-     => H.Component HH.HTML q Unit Message m
+     => H.Component HH.HTML q Unit Void m
 component =
   H.mkComponent
     { initialState
@@ -68,20 +65,18 @@ component =
           pure $ HH.li
             [ HE.onClick \_ -> Just $ Done task ]
             [ HH.text task.name ]
-      , HH.slot _nav unit Nav.component unit (Just <<< HandleNav)
+      , HH.slot _nav unit Nav.component unit absurd
       , HH.div [ HP.class_ $ ClassName "yarn" ]
           [ HH.img [ HP.src $ assets "1.png" ]
         ]
       ]
 
-  handleAction :: Action → H.HalogenM State Action ChildSlots Message m Unit
+  handleAction :: Action → H.HalogenM State Action ChildSlots Void m Unit
   handleAction = case _ of
     Initialize -> initialize
     Done task -> do
       _ <- H.liftAff $ Firestore.delete task.ref
       initialize
-    HandleNav (Navigation.UrlChanged path) -> do
-      H.raise (Navigation.UrlChanged path)
     where
       initialize = do
         logMessage "初期化です"

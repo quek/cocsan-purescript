@@ -5,7 +5,6 @@ import Prelude
 import Coc.AppM (class LogMessages, class Navigate, Env, GlobalMessage(..), logMessage)
 import Coc.Component.TaskNew as TaskNew
 import Coc.Component.Tasks as Tasks
-import Coc.Navigation as Navigation
 import Control.Monad.Reader.Trans (class MonadAsk, asks)
 import Data.Either (Either(..))
 import Data.Foldable (oneOf)
@@ -14,6 +13,7 @@ import Data.Symbol (SProxy(..))
 import Effect.Aff.AVar as AVar
 import Effect.Aff.Class (class MonadAff)
 import Effect.Console (log)
+import Foreign (unsafeToForeign)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
@@ -22,11 +22,7 @@ import Routing.Match (Match, end, lit, root)
 
 data Query a = ChangeRoute String a
 
-type Message = Navigation.Message
-
-data Action
-  = HandleNav Message
-  | Initialize
+data Action = Initialize
 
 type ChildSlots =
   ( tasks :: Tasks.Slot Unit
@@ -79,9 +75,9 @@ component =
       [ HP.class_ $ H.ClassName "body" ]
       [ case state.route of
           TaskIndex ->
-            HH.slot _tasks unit Tasks.component unit (Just <<< HandleNav)
+            HH.slot _tasks unit Tasks.component unit absurd
           TaskNew ->
-            HH.slot _taskNew unit TaskNew.component unit (Just <<< HandleNav)
+            HH.slot _taskNew unit TaskNew.component unit absurd
       ]
 
   handleQuery :: forall a. Query a -> H.HalogenM State Action ChildSlots o m (Maybe a)
@@ -104,10 +100,10 @@ component =
               pure unit
           f
       void $ H.fork f
-    HandleNav (Navigation.UrlChanged path) -> do
-      updateRoute path
 
-  updateRoute path =
+  updateRoute path = do
+    pushStateInterface <- asks _.pushStateInterface
+    H.liftEffect $ pushStateInterface.pushState (unsafeToForeign {}) path
     case match myRoute path of
       Right newRoute -> do
         H.modify_ \st -> st { route = newRoute }

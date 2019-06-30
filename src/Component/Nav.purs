@@ -3,7 +3,6 @@ module Coc.Component.Nav where
 import Prelude
 
 import Coc.AppM (class Navigate, navigate)
-import Coc.Navigation as Navigation
 import Data.Maybe (Maybe(..))
 import Effect.Aff.Class (class MonadAff)
 import Halogen as H
@@ -13,9 +12,7 @@ import Halogen.HTML.Properties as HP
 import Web.Event.Event (preventDefault)
 import Web.UIEvent.MouseEvent (MouseEvent, toEvent)
 
-type Message = Navigation.Message
-
-type Slot p = forall query. H.Slot query Message p
+type Slot p = forall query. H.Slot query Void p
 
 type State = {}
 
@@ -27,7 +24,7 @@ data Action = Go Path MouseEvent
 component :: forall q m
              . MonadAff m
              => Navigate m
-             => H.Component HH.HTML q Unit Message m
+             => H.Component HH.HTML q Unit Void m
 component =
   H.mkComponent
     { initialState
@@ -44,9 +41,8 @@ component =
       [ HP.class_ $ H.ClassName "add-button", HE.onClick (Just <<< Go "/tasks/new") ]
       [ HH.text "+" ]
 
-  handleAction :: Action → H.HalogenM State Action () Message m Unit
+  handleAction :: Action → H.HalogenM State Action () Void m Unit
   handleAction = case _ of
     Go path event -> do
       H.liftEffect $ event # toEvent # preventDefault
-      -- Navigation.go path
       navigate path
