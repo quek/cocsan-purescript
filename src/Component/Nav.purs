@@ -31,7 +31,7 @@ component =
     , eval: H.mkEval $ H.defaultEval { handleAction = handleAction }
     }
   where
-  initialState :: forall i. i -> State
+  initialState :: i -> State
   initialState _ = {}
 
   render :: State -> H.ComponentHTML Action () m

@@ -11,7 +11,6 @@ import Data.Foldable (traverse_)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import Data.Symbol (SProxy(..))
-import Effect.Aff (Aff)
 import Effect.Console (log)
 import Foreign.Generic (defaultOptions, genericEncode)
 import Formless as F
