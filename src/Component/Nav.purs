@@ -2,7 +2,7 @@ module Coc.Component.Nav where
 
 import Prelude
 
-import Coc.AppM (class Navigate, navigate)
+import Coc.AppM (class Navigate, MyRoute(..), navigate)
 import Data.Maybe (Maybe(..))
 import Effect.Aff.Class (class MonadAff)
 import Halogen as H
@@ -18,7 +18,7 @@ type State = {}
 
 type Path = String
 
-data Action = Go Path MouseEvent
+data Action = Go MyRoute MouseEvent
 
 
 component :: forall q m
@@ -38,11 +38,11 @@ component =
   render :: State -> H.ComponentHTML Action () m
   render state =
     HH.button
-      [ HP.class_ $ H.ClassName "add-button", HE.onClick (Just <<< Go "/tasks/new") ]
+      [ HP.class_ $ H.ClassName "add-button", HE.onClick (Just <<< Go TaskNew) ]
       [ HH.text "+" ]
 
   handleAction :: Action → H.HalogenM State Action () Void m Unit
   handleAction = case _ of
-    Go path event -> do
+    Go route event -> do
       H.liftEffect $ event # toEvent # preventDefault
-      navigate path
+      navigate route

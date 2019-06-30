@@ -2,7 +2,7 @@ module Coc.Component.TaskNew where
 
 import Prelude
 
-import Coc.AppM (class Navigate, navigate)
+import Coc.AppM (class Navigate, MyRoute(..), navigate)
 import Coc.Firebase.Auth as Auth
 import Coc.Firebase.Firestore as Firestore
 import Coc.Model.Task (GTask(..))
@@ -85,7 +85,7 @@ component =
         Firestore.doc uid $
         Firestore.collection "users"
       H.liftEffect $ log $ show task
-      navigate "/tasks"
+      navigate TaskIndex
 
   formComponent =
     F.component (const input) $ F.defaultSpec

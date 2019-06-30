@@ -19,7 +19,7 @@ import Routing.PushState (PushStateInterface)
 import Type.Equality (class TypeEquals, from)
 
 data GlobalMessage
-  = NavigateG String
+  = NavigateG MyRoute
 
 type Env =
   { globalMessage :: AVar GlobalMessage
@@ -42,16 +42,25 @@ derive newtype instance monadAffAppM :: MonadAff AppM
 instance monadAskAppM :: TypeEquals e Env => MonadAsk e AppM where
   ask = AppM $ asks from
 
+data MyRoute
+  = TaskIndex
+  | TaskNew
+
+routeToPath :: MyRoute -> String
+routeToPath = case _ of
+  TaskIndex -> "/tasks"
+  TaskNew -> "/tasks/new"
+
 class Monad m <= Navigate m where
-  navigate :: String -> m Unit
+  navigate :: MyRoute -> m Unit
 
 instance navigateHalogenM :: Navigate m => Navigate (H.HalogenM st act slots msg m) where
   navigate = lift <<< navigate
 
 instance navigateAppM :: Navigate AppM where
-  navigate path = do
+  navigate route = do
     globalMessage <- asks _.globalMessage
-    liftAff $ put (NavigateG path) globalMessage
+    liftAff $ put (NavigateG route) globalMessage
 
 
 class Monad m <= LogMessages m where

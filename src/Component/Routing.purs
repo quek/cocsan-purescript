@@ -2,7 +2,7 @@ module Coc.Component.Routing where
 
 import Prelude
 
-import Coc.AppM (class LogMessages, class Navigate, Env, GlobalMessage(..), logMessage, navigate)
+import Coc.AppM (class LogMessages, class Navigate, Env, GlobalMessage(..), MyRoute(..), logMessage, navigate, routeToPath)
 import Coc.Component.TaskNew as TaskNew
 import Coc.Component.Tasks as Tasks
 import Control.Monad.Reader.Trans (class MonadAsk, asks)
@@ -35,10 +35,6 @@ type ChildSlots =
 _tasks = SProxy :: SProxy "tasks"
 _taskNew = SProxy :: SProxy "taskNew"
 _nav = SProxy :: SProxy "nav"
-
-data MyRoute
-  = TaskIndex
-  | TaskNew
 
 myRoute :: Match MyRoute
 myRoute = root *> oneOf
@@ -94,22 +90,22 @@ component =
     Initialize -> do
       logMessage "初期化 Routing.purs"
       path <- H.liftEffect $ window >>= location >>= pathname
-      navigate path
+      updateRoute path
       void $ H.fork globalMessageLoop
 
   globalMessageLoop = do
     globalMessage <- asks _.globalMessage
     query <- H.liftAff $ AVar.take globalMessage
     case query of
-      NavigateG path' -> do
-        pushState path'
-        updateRoute path'
+      NavigateG route -> do
+        pushState route
+        H.modify_ \st -> st { route = route }
         pure unit
     globalMessageLoop
 
-  pushState path = do
+  pushState route = do
     pushStateInterface <- asks _.pushStateInterface
-    H.liftEffect $ pushStateInterface.pushState (unsafeToForeign {}) path
+    H.liftEffect $ pushStateInterface.pushState (unsafeToForeign {}) $ routeToPath route
 
   updateRoute path = do
     case match myRoute path of
