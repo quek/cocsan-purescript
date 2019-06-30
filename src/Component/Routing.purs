@@ -95,20 +95,23 @@ component =
       logMessage "初期化 Routing.purs"
       path <- H.liftEffect $ window >>= location >>= pathname
       navigate path
-      let
-        f = do
-          globalMessage <- asks _.globalMessage
-          query <- H.liftAff $ AVar.take globalMessage
-          case query of
-            NavigateG page -> do
-              updateRoute page
-              pure unit
-          f
-      void $ H.fork f
+      void $ H.fork globalMessageLoop
 
-  updateRoute path = do
+  globalMessageLoop = do
+    globalMessage <- asks _.globalMessage
+    query <- H.liftAff $ AVar.take globalMessage
+    case query of
+      NavigateG path' -> do
+        pushState path'
+        updateRoute path'
+        pure unit
+    globalMessageLoop
+
+  pushState path = do
     pushStateInterface <- asks _.pushStateInterface
     H.liftEffect $ pushStateInterface.pushState (unsafeToForeign {}) path
+
+  updateRoute path = do
     case match myRoute path of
       Right newRoute -> do
         H.modify_ \st -> st { route = newRoute }
