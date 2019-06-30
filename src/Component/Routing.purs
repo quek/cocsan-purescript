@@ -2,14 +2,16 @@ module Coc.Component.Routing where
 
 import Prelude
 
-import Coc.AppM (class LogMessages)
+import Coc.AppM (class LogMessages, class Navigate, Env, GlobalMessage(..), logMessage)
 import Coc.Component.TaskNew as TaskNew
 import Coc.Component.Tasks as Tasks
 import Coc.Navigation as Navigation
+import Control.Monad.Reader.Trans (class MonadAsk, asks)
 import Data.Either (Either(..))
 import Data.Foldable (oneOf)
 import Data.Maybe (Maybe(..))
 import Data.Symbol (SProxy(..))
+import Effect.Aff.AVar as AVar
 import Effect.Aff.Class (class MonadAff)
 import Effect.Console (log)
 import Halogen as H
@@ -22,7 +24,9 @@ data Query a = ChangeRoute String a
 
 type Message = Navigation.Message
 
-data Action = HandleNav Message
+data Action
+  = HandleNav Message
+  | Initialize
 
 type ChildSlots =
   ( tasks :: Tasks.Slot Unit
@@ -46,15 +50,20 @@ myRoute = root *> oneOf
 type State =
   { route :: MyRoute }
 
-component :: forall o m.
-             MonadAff m =>
-             LogMessages m =>
-             H.Component HH.HTML Query Unit o m
+component :: forall o m
+             .  MonadAff m
+             => LogMessages m
+             => Navigate m
+             => MonadAsk Env m
+             => H.Component HH.HTML Query Unit o m
 component =
   H.mkComponent
     { initialState: \_ -> { route: TaskIndex }
     , render
-    , eval: H.mkEval $ H.defaultEval { handleQuery = handleQuery, handleAction = handleAction }
+    , eval: H.mkEval $ H.defaultEval { handleQuery = handleQuery
+                                     , handleAction = handleAction
+                                     , initialize = Just Initialize
+                                     }
     }
   where
   -- initialState :: String -> State
@@ -83,6 +92,18 @@ component =
 
   handleAction :: Action -> H.HalogenM State Action ChildSlots o m Unit
   handleAction = case _ of
+    Initialize -> do
+      logMessage "初期化 Routing.purs"
+      let
+        f = do
+          globalMessage <- asks _.globalMessage
+          query <- H.liftAff $ AVar.take globalMessage
+          case query of
+            NavigateG page -> do
+              updateRoute page
+              pure unit
+          f
+      void $ H.fork f
     HandleNav (Navigation.UrlChanged path) -> do
       updateRoute path
 

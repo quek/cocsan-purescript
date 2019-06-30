@@ -3,7 +3,7 @@ module Coc.Component.Tasks where
 import Prelude
 
 import Assets (assets)
-import Coc.AppM (class LogMessages, logMessage)
+import Coc.AppM (class LogMessages, class Navigate, logMessage)
 import Coc.Component.Nav as Nav
 import Coc.Firebase.Auth as Auth
 import Coc.Firebase.Firestore as Firestore
@@ -43,10 +43,11 @@ _nav = SProxy :: SProxy "nav"
 
 
 component
-  :: forall q i m
+  :: forall q m
      . MonadAff m
      => LogMessages m
-     => H.Component HH.HTML q i Message m
+     => Navigate m
+     => H.Component HH.HTML q Unit Message m
 component =
   H.mkComponent
     { initialState

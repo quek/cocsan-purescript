@@ -2,15 +2,16 @@ module Coc.Component.Nav where
 
 import Prelude
 
+import Coc.AppM (class Navigate, navigate)
 import Coc.Navigation as Navigation
 import Data.Maybe (Maybe(..))
+import Effect.Aff.Class (class MonadAff)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Web.Event.Event (preventDefault)
 import Web.UIEvent.MouseEvent (MouseEvent, toEvent)
-import Effect.Aff.Class (class MonadAff)
 
 type Message = Navigation.Message
 
@@ -23,7 +24,10 @@ type Path = String
 data Action = Go Path MouseEvent
 
 
-component :: forall i q m. MonadAff m => H.Component HH.HTML q i Message m
+component :: forall i q m
+             . MonadAff m
+             => Navigate m
+             => H.Component HH.HTML q i Message m
 component =
   H.mkComponent
     { initialState
@@ -44,4 +48,5 @@ component =
   handleAction = case _ of
     Go path event -> do
       H.liftEffect $ event # toEvent # preventDefault
-      Navigation.go path
+      -- Navigation.go path
+      navigate path
