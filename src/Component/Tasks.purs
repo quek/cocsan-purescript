@@ -83,7 +83,7 @@ component =
       H.raise (Navigation.UrlChanged path)
     where
       initialize = do
-        logMessage "Hello"
+        logMessage "初期化です"
         user <- H.liftEffect Auth.currentUser
         let uid = Auth.uid user
         let collection = Firestore.subCollection "tasks" $

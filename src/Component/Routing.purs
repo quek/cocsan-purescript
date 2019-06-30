@@ -49,20 +49,20 @@ type State =
 component :: forall o m.
              MonadAff m =>
              LogMessages m =>
-             H.Component HH.HTML Query String o m
+             H.Component HH.HTML Query Unit o m
 component =
   H.mkComponent
-    { initialState
+    { initialState: \_ -> { route: TaskIndex }
     , render
     , eval: H.mkEval $ H.defaultEval { handleQuery = handleQuery, handleAction = handleAction }
     }
   where
-  initialState :: String -> State
-  initialState path =
-    { route: case match myRoute path of
-         Right newRoute -> newRoute
-         Left _ -> TaskIndex
-    }
+  -- initialState :: String -> State
+  -- initialState path =
+  --   { route: case match myRoute path of
+  --        Right newRoute -> newRoute
+  --        Left _ -> TaskIndex
+  --   }
 
   render :: State -> H.ComponentHTML Action ChildSlots m
   render state =

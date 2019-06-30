@@ -54,10 +54,10 @@ main :: Effect Unit
 main = HA.runHalogenAff do
   globalMessage <- AVar.empty
   pushStateInterface <- H.liftEffect $ makeInterface
-  body <- HA.awaitBody
   path <- liftEffect $ window >>= location >>= pathname
-  let 
+  let
     environment = { globalMessage, pushStateInterface }
     component = H.hoist (runAppM environment) Routing.component
-  io <- runUI component path body
+  body <- HA.awaitBody
+  io <- runUI component unit body
   Coroutine.runProcess (popStateProducer Coroutine.$$ popStateConsumer io.query)
