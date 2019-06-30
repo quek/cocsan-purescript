@@ -61,13 +61,6 @@ component =
                                      }
     }
   where
-  -- initialState :: String -> State
-  -- initialState path =
-  --   { route: case match myRoute path of
-  --        Right newRoute -> newRoute
-  --        Left _ -> TaskIndex
-  --   }
-
   render :: State -> H.ComponentHTML Action ChildSlots m
   render state =
     HH.div
