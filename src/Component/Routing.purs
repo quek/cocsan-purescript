@@ -2,7 +2,7 @@ module Coc.Component.Routing where
 
 import Prelude
 
-import Coc.AppM (class LogMessages, class Navigate, Env, GlobalMessage(..), logMessage)
+import Coc.AppM (class LogMessages, class Navigate, Env, GlobalMessage(..), logMessage, navigate)
 import Coc.Component.TaskNew as TaskNew
 import Coc.Component.Tasks as Tasks
 import Control.Monad.Reader.Trans (class MonadAsk, asks)
@@ -19,6 +19,9 @@ import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
 import Routing (match)
 import Routing.Match (Match, end, lit, root)
+import Web.HTML (window)
+import Web.HTML.Location (pathname)
+import Web.HTML.Window (location)
 
 data Query a = ChangeRoute String a
 
@@ -90,6 +93,8 @@ component =
   handleAction = case _ of
     Initialize -> do
       logMessage "初期化 Routing.purs"
+      path <- H.liftEffect $ window >>= location >>= pathname
+      navigate path
       let
         f = do
           globalMessage <- asks _.globalMessage
