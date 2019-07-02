@@ -3,8 +3,10 @@ module Coc.Component.NoteNew where
 import Prelude
 
 import Coc.AppM (class LogMessages, class Navigate, logMessage)
+import Coc.Component.AceComponent as AceComponent
 import Coc.Model.Note (Note)
 import Data.Maybe (Maybe(..))
+import Data.Symbol (SProxy(..))
 import Effect.Aff.Class (class MonadAff)
 import Halogen as H
 import Halogen.HTML as HH
@@ -16,7 +18,17 @@ type Slot p = forall query. H.Slot query Void p
 
 type State = { note :: Maybe Note }
 
-data Action = Initialize | Xxx MouseEvent
+data Action
+  = Initialize
+  | Xxx MouseEvent
+  | HandleAceUpdate AceComponent.Output
+
+type ChildSlots =
+  ( ace :: AceComponent.Slot Unit
+  )
+
+_ace = SProxy :: SProxy "ace"
+
 
 component :: forall query m
              . MonadAff m
@@ -34,21 +46,23 @@ component =
   where
   initialState _ = { note: Nothing }
 
-  render :: State -> H.ComponentHTML Action () m
+  render :: State -> H.ComponentHTML Action ChildSlots m
   render state =
     HH.div
       [ HP.class_ $ H.ClassName "notes" ]
-      [ HH.p_ [ HH.text "フォーム" ]
+      [ HH.slot _ace unit AceComponent.component unit (Just <<< HandleAceUpdate)
       , HH.button
           [ HP.class_ $ H.ClassName "add-button", HE.onClick (Just <<< Xxx) ]
           [ HH.text "+" ]
       ]
 
-  handleAction :: Action → H.HalogenM State Action () Void m Unit
+  handleAction :: Action → H.HalogenM State Action ChildSlots Void m Unit
   handleAction = case _ of
     Initialize -> initialize
     Xxx event -> do
       pure unit
+    HandleAceUpdate (AceComponent.TextChanged text) ->
+      logMessage text
     where
     initialize = do
       logMessage "NoteNew 初期化"

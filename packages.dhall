@@ -35,6 +35,18 @@ let additions =
           ]
           "https://github.com/thomashoneyman/purescript-slug.git"
           "v1.0.0"
+      , ace =
+          mkPackage
+          [ "effect"
+          , "web-html"
+          , "web-uievents"
+          , "arrays"
+          , "foreign"
+          , "nullable"
+          , "prelude"
+          ]
+          "https://github.com/slamdata/purescript-ace.git"
+          "v7.0.0"
       , precise-datetime =
           mkPackage
           [ "arrays"
