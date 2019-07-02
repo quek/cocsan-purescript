@@ -20,4 +20,3 @@ newtype GTask = GTask TaskData
 
 derive instance genericTask :: Generic GTask _
 instance showTask :: Show GTask where show = genericShow
-

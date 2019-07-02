@@ -45,11 +45,13 @@ instance monadAskAppM :: TypeEquals e Env => MonadAsk e AppM where
 data MyRoute
   = TaskIndex
   | TaskNew
+  | NoteIndex
 
 routeToPath :: MyRoute -> String
 routeToPath = case _ of
   TaskIndex -> "/tasks"
   TaskNew -> "/tasks/new"
+  NoteIndex -> "/notes"
 
 class Monad m <= Navigate m where
   navigate :: MyRoute -> m Unit

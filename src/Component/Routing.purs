@@ -5,6 +5,7 @@ import Prelude
 import Coc.AppM (class LogMessages, class Navigate, Env, GlobalMessage(..), MyRoute(..), logMessage, routeToPath)
 import Coc.Component.TaskNew as TaskNew
 import Coc.Component.Tasks as Tasks
+import Coc.Component.Notes as Notes
 import Control.Monad.Reader.Trans (class MonadAsk, asks)
 import Data.Either (Either(..))
 import Data.Foldable (oneOf)
@@ -30,16 +31,18 @@ data Action = Initialize
 type ChildSlots =
   ( tasks :: Tasks.Slot Unit
   , taskNew :: TaskNew.Slot Unit
+  , notes :: Notes.Slot Unit
   )
 
 _tasks = SProxy :: SProxy "tasks"
 _taskNew = SProxy :: SProxy "taskNew"
-_nav = SProxy :: SProxy "nav"
+_notes = SProxy :: SProxy "notes"
 
 myRoute :: Match MyRoute
 myRoute = root *> oneOf
   [ TaskNew <$ (lit "tasks" <* lit "new" <* end)
-  , TaskIndex <$  (lit "tasks" <* end)
+  , TaskIndex <$ (lit "tasks" <* end)
+  , NoteIndex <$ (lit "notes" <* end)
   ]
 
 type State =
@@ -70,6 +73,8 @@ component =
             HH.slot _tasks unit Tasks.component unit absurd
           TaskNew ->
             HH.slot _taskNew unit TaskNew.component unit absurd
+          NoteIndex ->
+            HH.slot _notes unit Notes.component unit absurd
       ]
 
   handleQuery :: forall a. Query a -> H.HalogenM State Action ChildSlots o m (Maybe a)
