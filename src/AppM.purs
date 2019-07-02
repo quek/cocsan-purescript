@@ -46,12 +46,14 @@ data MyRoute
   = TaskIndex
   | TaskNew
   | NoteIndex
+  | NoteNew
 
 routeToPath :: MyRoute -> String
 routeToPath = case _ of
   TaskIndex -> "/tasks"
   TaskNew -> "/tasks/new"
   NoteIndex -> "/notes"
+  NoteNew -> "/notes/new"
 
 class Monad m <= Navigate m where
   navigate :: MyRoute -> m Unit

@@ -2,7 +2,7 @@ module Coc.Component.Notes where
 
 import Prelude
 
-import Coc.AppM (class LogMessages, class Navigate, logMessage)
+import Coc.AppM (class LogMessages, class Navigate, MyRoute(..), logMessage, navigate)
 import Coc.Firebase.Auth as Auth
 import Coc.Firebase.Firestore as Firestore
 import Coc.Model.Note (GNote(..), Note)
@@ -23,7 +23,7 @@ type Slot p = forall query. H.Slot query Void p
 
 type State = { notes :: Array Note }
 
-data Action = Initialize | Xxx MouseEvent
+data Action = Initialize | GoToNoteNew MouseEvent
 
 component :: forall query m
              . MonadAff m
@@ -47,15 +47,15 @@ component =
       [ HP.class_ $ H.ClassName "notes" ]
       [ HH.p_ [ HH.text "にゃ" ]
       , HH.button
-          [ HP.class_ $ H.ClassName "add-button", HE.onClick (Just <<< Xxx) ]
+          [ HP.class_ $ H.ClassName "add-button", HE.onClick (Just <<< GoToNoteNew) ]
           [ HH.text "+" ]
       ]
 
   handleAction :: Action → H.HalogenM State Action () Void m Unit
   handleAction = case _ of
     Initialize -> initialize
-    Xxx event -> do
-      pure unit
+    GoToNoteNew _ -> do
+      navigate NoteNew
     where
     initialize = do
       logMessage "Notes 初期化"
