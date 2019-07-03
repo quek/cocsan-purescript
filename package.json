@@ -27,6 +27,7 @@
     "deploy": "yarn run build && firebase deploy"
   },
   "dependencies": {
+    "codemirror": "^5.48.0",
     "firebase": "^6.1.0"
   }
 }

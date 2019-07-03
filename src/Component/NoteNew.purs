@@ -3,7 +3,7 @@ module Coc.Component.NoteNew where
 import Prelude
 
 import Coc.AppM (class LogMessages, class Navigate, logMessage)
-import Coc.Component.AceComponent as AceComponent
+import Coc.Component.EditorComponent as EditorComponent
 import Coc.Model.Note (Note)
 import Data.Maybe (Maybe(..))
 import Data.Symbol (SProxy(..))
@@ -21,10 +21,10 @@ type State = { note :: Maybe Note }
 data Action
   = Initialize
   | Xxx MouseEvent
-  | HandleAceUpdate AceComponent.Output
+  | HandleAceUpdate EditorComponent.Output
 
 type ChildSlots =
-  ( ace :: AceComponent.Slot Unit
+  ( ace :: EditorComponent.Slot Unit
   )
 
 _ace = SProxy :: SProxy "ace"
@@ -50,7 +50,7 @@ component =
   render state =
     HH.div
       [ HP.class_ $ H.ClassName "notes" ]
-      [ HH.slot _ace unit AceComponent.component unit (Just <<< HandleAceUpdate)
+      [ HH.slot _ace unit EditorComponent.component unit (Just <<< HandleAceUpdate)
       , HH.button
           [ HP.class_ $ H.ClassName "add-button", HE.onClick (Just <<< Xxx) ]
           [ HH.text "+" ]
@@ -61,7 +61,7 @@ component =
     Initialize -> initialize
     Xxx event -> do
       pure unit
-    HandleAceUpdate (AceComponent.TextChanged text) ->
+    HandleAceUpdate (EditorComponent.TextChanged text) ->
       logMessage text
     where
     initialize = do

@@ -32,7 +32,7 @@ module.exports = {
         ]
       },
       {
-        test: /\.scss$/,
+        test: /\.s?css$/,
         use: [
           "style-loader",       // creates style nodes from JS strings
           "css-loader",         // translates CSS into CommonJS
