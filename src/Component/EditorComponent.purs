@@ -23,12 +23,8 @@ data Action
   | Finalize
   | HandleChange
 
--- | The state for the ace component - we only need a reference to the editor,
--- | as Ace editor has its own internal state that we can query instead of
--- | replicating it within Halogen.
 type State = { editor :: Maybe CodeMirror.CodeMirror }
 
--- | The Ace component definition.
 component :: forall i m
              . MonadAff m
              => H.Component HH.HTML Query i Output m
@@ -47,9 +43,6 @@ component =
 initialState :: forall i. i -> State
 initialState _ = { editor: Nothing }
 
--- As we're embedding a 3rd party component we only need to create a placeholder
--- div here and attach the ref property which will let us reference the element
--- in eval.
 render :: forall m. State -> H.ComponentHTML Action () m
 render
   = const $ HH.textarea [ HP.id_ "editor" ]
@@ -63,8 +56,6 @@ handleAction = case _ of
       CodeMirror.onChange editor (\_ -> ES.emit emitter HandleChange)
       pure mempty
   Finalize -> do
-    -- Release the reference to the editor and do any other cleanup that a
-    -- real world component might need.
     H.modify_ (_ { editor = Nothing })
   HandleChange -> do
     H.gets _.editor >>= traverse_ \editor -> do
