@@ -1,10 +1,12 @@
 module Coc.Component.EditorComponent where
 
 import Prelude
+
 import Coc.Component.CodeMirror as CodeMirror
 import Data.Foldable (traverse_)
 import Data.Maybe (Maybe(..))
 import Effect.Aff.Class (class MonadAff)
+import Effect.Class.Console (log)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
@@ -27,7 +29,9 @@ data Action
 type State = { editor :: Maybe CodeMirror.CodeMirror }
 
 -- | The Ace component definition.
-component :: forall i m. MonadAff m => H.Component HH.HTML Query i Output m
+component :: forall i m
+             . MonadAff m
+             => H.Component HH.HTML Query i Output m
 component =
   H.mkComponent
     { initialState
@@ -47,22 +51,26 @@ initialState _ = { editor: Nothing }
 -- div here and attach the ref property which will let us reference the element
 -- in eval.
 render :: forall m. State -> H.ComponentHTML Action () m
-render = const $ HH.textarea [ HP.id_ "editor",  HP.ref (H.RefLabel "ace") ]
+render
+  = const $ HH.textarea [ HP.id_ "editor" ]
 
 handleAction :: forall m. MonadAff m => Action -> H.HalogenM State Action () Output m Unit
 handleAction = case _ of
   Initialize -> do
-    let editor = CodeMirror.make "editor"
+    editor <- H.liftEffect $ CodeMirror.make "editor"
     H.modify_ (_ { editor = Just editor })
+    void $ H.subscribe $ ES.effectEventSource \emitter -> do
+      CodeMirror.onChange editor (\_ -> ES.emit emitter HandleChange)
+      pure mempty
   Finalize -> do
     -- Release the reference to the editor and do any other cleanup that a
     -- real world component might need.
     H.modify_ (_ { editor = Nothing })
   HandleChange -> do
     H.gets _.editor >>= traverse_ \editor -> do
-      -- text <- H.liftEffect (Editor.getValue editor)
-      -- H.raise $ TextChanged text
-      pure unit
+      text <- H.liftEffect $ CodeMirror.getValue editor
+      H.liftEffect $ log text
+      H.raise $ TextChanged text
 
 handleQuery :: forall m a. MonadAff m => Query a -> H.HalogenM State Action () Output m (Maybe a)
 handleQuery = case _ of
