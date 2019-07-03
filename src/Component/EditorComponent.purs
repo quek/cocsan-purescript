@@ -2,11 +2,11 @@ module Coc.Component.EditorComponent where
 
 import Prelude
 
+import Coc.AppM (class LogMessages)
 import Coc.Component.CodeMirror as CodeMirror
 import Data.Foldable (traverse_)
 import Data.Maybe (Maybe(..))
 import Effect.Aff.Class (class MonadAff)
-import Effect.Class.Console (log)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
@@ -27,6 +27,7 @@ type State = { editor :: Maybe CodeMirror.CodeMirror }
 
 component :: forall i m
              . MonadAff m
+             => LogMessages m
              => H.Component HH.HTML Query i Output m
 component =
   H.mkComponent
@@ -47,7 +48,10 @@ render :: forall m. State -> H.ComponentHTML Action () m
 render
   = const $ HH.textarea [ HP.id_ "editor" ]
 
-handleAction :: forall m. MonadAff m => Action -> H.HalogenM State Action () Output m Unit
+handleAction :: forall m
+             . MonadAff m
+             => LogMessages m
+             => Action -> H.HalogenM State Action () Output m Unit
 handleAction = case _ of
   Initialize -> do
     editor <- H.liftEffect $ CodeMirror.make "editor"
@@ -60,7 +64,6 @@ handleAction = case _ of
   HandleChange -> do
     H.gets _.editor >>= traverse_ \editor -> do
       text <- H.liftEffect $ CodeMirror.getValue editor
-      H.liftEffect $ log text
       H.raise $ TextChanged text
 
 handleQuery :: forall m a. MonadAff m => Query a -> H.HalogenM State Action () Output m (Maybe a)
