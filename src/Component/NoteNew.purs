@@ -2,12 +2,16 @@ module Coc.Component.NoteNew where
 
 import Prelude
 
-import Coc.AppM (class LogMessages, class Navigate, logMessage)
+import Coc.AppM (class LogMessages, class Navigate, MyRoute(..), logMessage, navigate)
 import Coc.Component.EditorComponent as EditorComponent
-import Coc.Model.Note (Note)
+import Coc.Firebase.Auth as Auth
+import Coc.Firebase.Firestore as Firestore
+import Coc.Model.Note (GNote(..), Note)
+import Data.Foldable (traverse_)
 import Data.Maybe (Maybe(..))
 import Data.Symbol (SProxy(..))
 import Effect.Aff.Class (class MonadAff)
+import Foreign.Generic (defaultOptions, genericEncode)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
@@ -16,18 +20,21 @@ import Web.UIEvent.MouseEvent (MouseEvent)
 
 type Slot p = forall query. H.Slot query Void p
 
-type State = { note :: Maybe Note }
+type State =
+  { note :: Maybe Note
+  , body :: String
+  }
 
 data Action
   = Initialize
-  | Xxx MouseEvent
+  | Save MouseEvent
   | HandleAceUpdate EditorComponent.Output
 
 type ChildSlots =
-  ( ace :: EditorComponent.Slot Unit
+  ( ecitor :: EditorComponent.Slot Unit
   )
 
-_ace = SProxy :: SProxy "ace"
+_ecitor = SProxy :: SProxy "ecitor"
 
 
 component :: forall query m
@@ -44,23 +51,31 @@ component =
                                      }
     }
   where
-  initialState _ = { note: Nothing }
+  initialState _ = { note: Nothing, body: "" }
 
   render :: State -> H.ComponentHTML Action ChildSlots m
   render state =
     HH.div
       [ HP.class_ $ H.ClassName "notes" ]
-      [ HH.slot _ace unit EditorComponent.component unit (Just <<< HandleAceUpdate)
+      [ HH.slot _ecitor unit EditorComponent.component unit (Just <<< HandleAceUpdate)
       , HH.button
-          [ HP.class_ $ H.ClassName "add-button", HE.onClick (Just <<< Xxx) ]
-          [ HH.text "+" ]
+          [ HP.class_ $ H.ClassName "add-button", HE.onClick (Just <<< Save) ]
+          [ HH.text "Save" ]
       ]
 
-  handleAction :: Action → H.HalogenM State Action ChildSlots Void m Unit
   handleAction = case _ of
     Initialize -> initialize
-    Xxx event -> do
-      pure unit
+    Save event -> do
+      user <- H.liftEffect Auth.currentUser
+      let uid = Auth.uid user
+      state <- H.get
+      let doc = genericEncode defaultOptions (GNote { body: state.body })
+      _ <- H.liftAff $
+        Firestore.add doc $
+        Firestore.subCollection "notes" $
+        Firestore.doc uid $
+        Firestore.collection "users"
+      navigate NoteIndex
     HandleAceUpdate (EditorComponent.TextChanged text) ->
       logMessage text
     where
