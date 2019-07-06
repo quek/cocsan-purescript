@@ -6,8 +6,7 @@ import Coc.AppM (class LogMessages, class Navigate, MyRoute(..), logMessage, nav
 import Coc.Component.EditorComponent as EditorComponent
 import Coc.Firebase.Auth as Auth
 import Coc.Firebase.Firestore as Firestore
-import Coc.Model.Note (GNote(..), Note)
-import Data.Foldable (traverse_)
+import Coc.Model.Note (GNote(..))
 import Data.Maybe (Maybe(..))
 import Data.Symbol (SProxy(..))
 import Effect.Aff.Class (class MonadAff)
@@ -21,8 +20,7 @@ import Web.UIEvent.MouseEvent (MouseEvent)
 type Slot p = forall query. H.Slot query Void p
 
 type State =
-  { note :: Maybe Note
-  , body :: String
+  { body :: String
   }
 
 data Action
@@ -51,7 +49,7 @@ component =
                                      }
     }
   where
-  initialState _ = { note: Nothing, body: "" }
+  initialState _ = { body: "" }
 
   render :: State -> H.ComponentHTML Action ChildSlots m
   render state =
@@ -77,7 +75,7 @@ component =
         Firestore.collection "users"
       navigate NoteIndex
     HandleAceUpdate (EditorComponent.TextChanged text) ->
-      logMessage text
+       H.modify_ (_ { body = text })
     where
     initialize = do
       logMessage "NoteNew 初期化"

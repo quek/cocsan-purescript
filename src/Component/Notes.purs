@@ -45,7 +45,12 @@ component =
   render state =
     HH.div
       [ HP.class_ $ H.ClassName "notes" ]
-      [ HH.p_ [ HH.text "にゃ" ]
+      [ HH.ul_
+        do
+          note <- state.notes
+          pure $ HH.li
+            []
+            [ HH.text note.body ]
       , HH.button
           [ HP.class_ $ H.ClassName "add-button", HE.onClick (Just <<< GoToNoteNew) ]
           [ HH.text "+" ]
