@@ -73,5 +73,5 @@ component =
           let maybeDoc = hush $ runExcept $ genericDecode opts documentData
           guard $ isJust maybeDoc
           let (GNote noteData) = unsafePartial fromJust maybeDoc
-          pure $ { ref: Firestore.ref doc, name: noteData.name, body: noteData.body }
+          pure $ { ref: Firestore.ref doc, body: noteData.body }
       H.modify_ (_ { notes = notes })

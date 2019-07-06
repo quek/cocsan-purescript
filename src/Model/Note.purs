@@ -7,8 +7,7 @@ import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 
 type NoteX x =
-  { name :: String
-  , body :: Boolean
+  { body :: Boolean
   | x
   }
 
