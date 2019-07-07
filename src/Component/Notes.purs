@@ -23,7 +23,10 @@ type Slot p = forall query. H.Slot query Void p
 
 type State = { notes :: Array Note }
 
-data Action = Initialize | GoToNoteNew MouseEvent
+data Action
+  = Initialize
+  | GoToNoteNew MouseEvent
+  | GoToNoteEdit Note MouseEvent
 
 component :: forall query m
              . MonadAff m
@@ -49,7 +52,7 @@ component =
         do
           note <- state.notes
           pure $ HH.li
-            []
+            [ HE.onClick (Just <<< (GoToNoteEdit note)) ]
             [ HH.text note.body ]
       , HH.button
           [ HP.class_ $ H.ClassName "add-button", HE.onClick (Just <<< GoToNoteNew) ]
@@ -61,6 +64,9 @@ component =
     Initialize -> initialize
     GoToNoteNew _ -> do
       navigate NoteNew
+    GoToNoteEdit note event -> do
+      let id = Firestore.id note.ref
+      navigate (NoteEdit id)
     where
     initialize = do
       logMessage "Notes 初期化"

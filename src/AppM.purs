@@ -42,11 +42,14 @@ derive newtype instance monadAffAppM :: MonadAff AppM
 instance monadAskAppM :: TypeEquals e Env => MonadAsk e AppM where
   ask = AppM $ asks from
 
+type DocumentPathId = String
+
 data MyRoute
   = TaskIndex
   | TaskNew
   | NoteIndex
   | NoteNew
+  | NoteEdit DocumentPathId
 
 routeToPath :: MyRoute -> String
 routeToPath = case _ of
@@ -54,6 +57,7 @@ routeToPath = case _ of
   TaskNew -> "/tasks/new"
   NoteIndex -> "/notes"
   NoteNew -> "/notes/new"
+  NoteEdit id -> "/notes/" <> id <> "/edit"
 
 class Monad m <= Navigate m where
   navigate :: MyRoute -> m Unit

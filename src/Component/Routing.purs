@@ -2,11 +2,12 @@ module Coc.Component.Routing where
 
 import Prelude
 
-import Coc.AppM (class LogMessages, class Navigate, Env, GlobalMessage(..), MyRoute(..), logMessage, routeToPath)
-import Coc.Component.TaskNew as TaskNew
-import Coc.Component.Tasks as Tasks
+import Coc.AppM (class LogMessages, class Navigate, Env, GlobalMessage(..), MyRoute(..), DocumentPathId, logMessage, routeToPath)
 import Coc.Component.NoteNew as NoteNew
 import Coc.Component.Notes as Notes
+import Coc.Component.TaskNew as TaskNew
+import Coc.Component.NoteEdit as NoteEdit
+import Coc.Component.Tasks as Tasks
 import Control.Monad.Reader.Trans (class MonadAsk, asks)
 import Data.Either (Either(..))
 import Data.Foldable (oneOf)
@@ -20,7 +21,7 @@ import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
 import Routing (match)
-import Routing.Match (Match, end, lit, root)
+import Routing.Match (Match, end, lit, root, str)
 import Web.HTML (window)
 import Web.HTML.Location (pathname)
 import Web.HTML.Window (location)
@@ -34,12 +35,14 @@ type ChildSlots =
   , taskNew :: TaskNew.Slot Unit
   , notes :: Notes.Slot Unit
   , noteNew :: NoteNew.Slot Unit
+  , noteEdit :: NoteEdit.Slot DocumentPathId
   )
 
 _tasks = SProxy :: SProxy "tasks"
 _taskNew = SProxy :: SProxy "taskNew"
 _notes = SProxy :: SProxy "notes"
 _noteNew = SProxy :: SProxy "noteNew"
+_noteEdit = SProxy :: SProxy "noteEdit"
 
 myRoute :: Match MyRoute
 myRoute = root *> oneOf
@@ -47,6 +50,7 @@ myRoute = root *> oneOf
   , TaskIndex <$ (lit "tasks" <* end)
   , NoteIndex <$ (lit "notes" <* end)
   , NoteNew <$ (lit "notes" <* lit "new" <* end)
+  , NoteEdit <$> (lit "notes" *> str <* lit "edit" <* end)
   ]
 
 type State =
@@ -81,6 +85,8 @@ component =
             HH.slot _notes unit Notes.component unit absurd
           NoteNew ->
             HH.slot _noteNew unit NoteNew.component unit absurd
+          NoteEdit id ->
+            HH.slot _noteEdit id NoteEdit.component id absurd
       ]
 
   handleQuery :: forall a. Query a -> H.HalogenM State Action ChildSlots o m (Maybe a)
