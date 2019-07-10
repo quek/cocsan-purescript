@@ -1,7 +1,7 @@
 module Coc.Model.Base where
 
 import Coc.Firebase.Firestore as Firestore
-import Data.DateTime.Foreign (DateTime)
+import Coc.Model.DateTime (DateTime)
 
 type BaseData =
   ( createdAt :: DateTime

@@ -28,6 +28,5 @@
     , "aff-coroutines"
     , "foreign-generic"
     , "psci-support"
-    , "foreign-datetime"
     ]
 }

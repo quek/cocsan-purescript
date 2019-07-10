@@ -24,14 +24,6 @@ let additions =
           ]
           "https://github.com/thomashoneyman/purescript-halogen-formless.git"
           "halogen-5"
-      , foreign-datetime =
-          mkPackage
-          [ "foreign-generic"
-          , "js-date"
-          , "prelude"
-          ]
-          "https://github.com/berdario/purescript-foreign-datetime.git"
-          "v3.0.0"
       , slug =
           mkPackage
           [ "prelude"
