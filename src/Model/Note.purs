@@ -2,18 +2,18 @@ module Coc.Model.Note where
 
 import Prelude
 
-import Coc.Firebase.Firestore as Firestore
+import Coc.Model.Base (BaseData, BaseDoc)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 
-type NoteX x =
+type NoteBase x =
   { body :: String
   | x
   }
 
-type NoteData = NoteX ()
+type NoteData = NoteBase (BaseData)
 
-type Note = NoteX (ref :: Firestore.DocumentReference)
+type Note = NoteBase (BaseDoc)
 
 newtype GNote = GNote NoteData
 

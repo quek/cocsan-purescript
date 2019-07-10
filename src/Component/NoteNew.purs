@@ -7,9 +7,11 @@ import Coc.Component.EditorComponent as EditorComponent
 import Coc.Firebase.Auth as Auth
 import Coc.Firebase.Firestore as Firestore
 import Coc.Model.Note (GNote(..))
+import Data.DateTime.Foreign (DateTime(..))
 import Data.Maybe (Maybe(..))
 import Data.Symbol (SProxy(..))
 import Effect.Aff.Class (class MonadAff)
+import Effect.Now (nowDateTime)
 import Foreign.Generic (defaultOptions, genericEncode)
 import Halogen as H
 import Halogen.HTML as HH
@@ -67,7 +69,13 @@ component =
       user <- H.liftEffect Auth.currentUser
       let uid = Auth.uid user
       state <- H.get
-      let doc = genericEncode defaultOptions (GNote { body: state.body })
+      now <- H.liftEffect nowDateTime
+      let doc = genericEncode defaultOptions (
+        GNote { body: state.body
+              , createdAt: DateTime now
+              , updatedAt: DateTime now
+              }
+        )
       _ <- H.liftAff $
         Firestore.add doc $
         Firestore.subCollection "notes" $
