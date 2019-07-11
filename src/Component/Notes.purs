@@ -53,7 +53,7 @@ component =
           note <- state.notes
           pure $ HH.li
             [ HE.onClick (Just <<< (GoToNoteEdit note)) ]
-            [ HH.text note.body ]
+            [ HH.text note.body, HH.text $ show note.updatedAt ]
       , HH.button
           [ HP.class_ $ H.ClassName "add-button", HE.onClick (Just <<< GoToNoteNew) ]
           [ HH.text "+" ]

@@ -1,12 +1,15 @@
 module Coc.Model.DateTime where
 
 import Prelude
-import Effect.Unsafe (unsafePerformEffect)
+
+
 import Data.DateTime as D
-import Foreign (F, ForeignError(..), fail)
-import Foreign.Class (class Encode, class Decode, decode, encode)
-import Data.JSDate (fromDateTime, parse, toDateTime, toISOString)
+
+import Data.JSDate (JSDate, fromDateTime, toDateTime)
 import Data.Maybe (maybe')
+import Foreign (Foreign, ForeignError(..), fail, unsafeFromForeign, unsafeToForeign)
+import Foreign.Class (class Decode, class Encode)
+
 
 newtype DateTime = DateTime D.DateTime
 
@@ -15,14 +18,15 @@ derive newtype instance ordDateTime :: Ord DateTime
 derive newtype instance boundedDateTime :: Bounded DateTime
 derive newtype instance showDateTime :: Show DateTime
 
-invalidDate :: String -> Unit -> F DateTime
-invalidDate date _ = fail $ ForeignError $ "Invalid date: " <> date
+foreign import toDate :: Foreign -> JSDate
 
 instance decodeDateTime :: Decode DateTime where
     decode value = do
-        dateString <- decode value
-        let jsDate = unsafePerformEffect $ parse dateString
-        maybe' (invalidDate dateString) (pure <<< DateTime) $ toDateTime jsDate
+      let dateTime = toDateTime $ toDate $ unsafeFromForeign value
+      maybe'
+        (\_ -> fail $ ForeignError $ show dateTime)
+        (pure <<< DateTime)
+        dateTime
 
 instance encodeDateTime :: Encode DateTime where
-    encode (DateTime dt) = encode $ unsafePerformEffect $ toISOString $ fromDateTime dt
+    encode (DateTime dt) = unsafeToForeign $ fromDateTime dt
