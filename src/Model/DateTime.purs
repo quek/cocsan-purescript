@@ -2,11 +2,9 @@ module Coc.Model.DateTime where
 
 import Prelude
 
-
 import Data.DateTime as D
-
 import Data.JSDate (JSDate, fromDateTime, toDateTime)
-import Data.Maybe (maybe')
+import Data.Maybe (Maybe(..))
 import Foreign (Foreign, ForeignError(..), fail, unsafeFromForeign, unsafeToForeign)
 import Foreign.Class (class Decode, class Encode)
 
@@ -23,10 +21,9 @@ foreign import toDate :: Foreign -> JSDate
 instance decodeDateTime :: Decode DateTime where
     decode value = do
       let dateTime = toDateTime $ toDate $ unsafeFromForeign value
-      maybe'
-        (\_ -> fail $ ForeignError $ show dateTime)
-        (pure <<< DateTime)
-        dateTime
+      case dateTime of
+        Just dt -> pure $ DateTime dt
+        Nothing -> fail $ ForeignError $ show dateTime
 
 instance encodeDateTime :: Encode DateTime where
     encode (DateTime dt) = unsafeToForeign $ fromDateTime dt
