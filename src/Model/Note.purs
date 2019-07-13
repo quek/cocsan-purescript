@@ -3,7 +3,7 @@ module Coc.Model.Note where
 import Prelude
 
 import Coc.Firebase.Firestore as Firestore
-import Coc.Model.Base (BaseData, BaseDoc, decode, encode)
+import Coc.Model.Base (BaseData, BaseDoc, decode, deleteRef, encode, insertRef)
 import Coc.Model.DateTime (DateTime(..))
 import Coc.Store (userNotes)
 import Data.Generic.Rep (class Generic)
@@ -35,13 +35,11 @@ find id = do
     Firestore.doc id
     userNotes') :: Aff Firestore.DocumentSnapshot
   let (GNote noteData) = decode $ Firestore.data' documentSnapshot
-  pure $ Record.insert _ref (Firestore.ref documentSnapshot) noteData
+  pure $ insertRef (Firestore.ref documentSnapshot) noteData
 
 update :: Note -> Aff Unit
 update note = do
   now <- liftEffect nowDateTime
-  let note' = Record.delete _ref note
+  let note' = deleteRef note
   let doc = encode $ GNote note' { updatedAt = DateTime now }
   Firestore.update doc note.ref
-
-_ref = SProxy :: SProxy "ref"
