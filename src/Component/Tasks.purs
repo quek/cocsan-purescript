@@ -10,20 +10,15 @@ import Coc.Firebase.Firestore as Firestore
 import Coc.Model.Base (decode)
 import Coc.Model.Task (GTask(..), Task)
 import Coc.Store (userTasks)
-import Control.Monad.Except (runExcept)
-import Control.MonadPlus (guard)
-import Data.Either (hush)
-import Data.Maybe (Maybe(..), fromJust, isJust)
+import Data.Maybe (Maybe(..))
 import Data.Symbol (SProxy(..))
 import Effect.Aff.Class (class MonadAff)
 import Effect.Console (logShow)
-import Foreign.Generic (defaultOptions, genericDecode)
 import Halogen (ClassName(..))
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import Partial.Unsafe (unsafePartial)
 import Record as Record
 
 type Slot = H.Slot Query Void
