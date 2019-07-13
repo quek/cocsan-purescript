@@ -8,11 +8,9 @@ import Coc.Model.DateTime (DateTime(..))
 import Coc.Store (userNotes)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
-import Data.Symbol (SProxy(..))
 import Effect.Aff (Aff)
 import Effect.Class (liftEffect)
 import Effect.Now (nowDateTime)
-import Record as Record
 
 type NoteBase x =
   { body :: String
