@@ -82,7 +82,7 @@ component =
         opts = defaultOptions {unwrapSingleConstructors = true}
         notes = do
           doc <- Firestore.docs querySnapshot
-          let documentData = Firestore.documentData doc
+          let documentData = Firestore.data' doc
           let maybeDoc = hush $ runExcept $ genericDecode opts documentData
           guard $ isJust maybeDoc
           let (GNote noteData) = unsafePartial fromJust maybeDoc

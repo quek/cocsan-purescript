@@ -66,8 +66,8 @@ foreign import size :: QuerySnapshot -> Int
 foreign import docs :: QuerySnapshot -> Array QueryDocumentSnapshot
 
 foreign import documentDataImpl :: Fn1  QueryDocumentSnapshot DocumentData
-documentData :: QueryDocumentSnapshot -> DocumentData
-documentData = runFn1 documentDataImpl
+data' :: QueryDocumentSnapshot -> DocumentData
+data' = runFn1 documentDataImpl
 
 foreign import getFieldImpl :: Fn2 QueryDocumentSnapshot String String
 getField :: QueryDocumentSnapshot -> String -> String

@@ -93,7 +93,7 @@ component =
           opts = defaultOptions {unwrapSingleConstructors = true}
           tasks = do
             doc <- Firestore.docs querySnapshot
-            let documentData = Firestore.documentData doc
+            let documentData = Firestore.data' doc
             let maybeTask = hush $ runExcept $ genericDecode opts documentData
             guard $ isJust maybeTask
             let (GTask taskData) = unsafePartial fromJust maybeTask
