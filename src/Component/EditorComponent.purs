@@ -2,7 +2,7 @@ module Coc.Component.EditorComponent where
 
 import Prelude
 
-import Coc.AppM (class LogMessages)
+import Coc.AppM (class LogMessages, logMessage)
 import Coc.Component.CodeMirror as CodeMirror
 import Data.Foldable (traverse_)
 import Data.Maybe (Maybe(..))
@@ -58,6 +58,8 @@ handleAction = case _ of
   Initialize -> do
     state <- H.get
     editor <- H.liftEffect $ CodeMirror.make "editor"
+    logMessage "EditComponent initialize"
+    logMessage state.body
     H.liftEffect $ CodeMirror.setValue editor state.body
     H.modify_ (_ { editor = Just editor })
     void $ H.subscribe $ ES.effectEventSource \emitter -> do
