@@ -3,7 +3,7 @@ module Coc.Model.Note where
 import Prelude
 
 import Coc.Firebase.Firestore as Firestore
-import Coc.Model.Base (BaseData, BaseDoc)
+import Coc.Model.Base (BaseData, BaseDoc, encode)
 import Coc.Model.DateTime (DateTime(..))
 import Coc.Store (userNotes)
 import Control.Monad.Except (runExcept)
@@ -15,7 +15,7 @@ import Data.Symbol (SProxy(..))
 import Effect.Aff (Aff)
 import Effect.Class (liftEffect)
 import Effect.Now (nowDateTime)
-import Foreign.Generic (defaultOptions, genericDecode, genericEncode)
+import Foreign.Generic (defaultOptions, genericDecode)
 import Partial.Unsafe (unsafePartial)
 import Record as Record
 
@@ -48,9 +48,7 @@ update :: Note -> Aff Unit
 update note = do
   now <- liftEffect nowDateTime
   let note' = Record.delete _ref note
-  let doc = genericEncode defaultOptions (
-        GNote (note' { updatedAt = DateTime now })
-        )
+  let doc = encode $ GNote note' { updatedAt = DateTime now }
   Firestore.update doc note.ref
 
 _ref = SProxy :: SProxy "ref"
