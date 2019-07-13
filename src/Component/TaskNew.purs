@@ -3,6 +3,7 @@ module Coc.Component.TaskNew where
 import Prelude
 
 import Coc.AppM (class Navigate, MyRoute(..), navigate)
+import Coc.Store.Collection as Collection
 import Coc.Firebase.Auth as Auth
 import Coc.Firebase.Firestore as Firestore
 import Coc.Model.Task (GTask(..))
@@ -81,9 +82,9 @@ component =
       let d = genericEncode defaultOptions (GTask { name: task.name, done: false })
       firestore <- H.liftEffect Firestore.firestore
       _ <- firestore
-           # Firestore.collection "users"
+           # Firestore.collection Collection.users
            # Firestore.doc uid
-           # Firestore.collection "tasks"
+           # Firestore.collection Collection.tasks
            # Firestore.add d
            # H.liftAff
       H.liftEffect $ log $ show task

@@ -3,6 +3,7 @@ module Coc.Component.NoteNew where
 import Prelude
 
 import Coc.AppM (class LogMessages, class Navigate, MyRoute(..), logMessage, navigate)
+import Coc.Store.Collection as Collection
 import Coc.Component.EditorComponent as EditorComponent
 import Coc.Firebase.Auth as Auth
 import Coc.Firebase.Firestore as Firestore
@@ -78,9 +79,9 @@ component =
         )
       firestore <- H.liftEffect Firestore.firestore
       _ <- firestore
-        # Firestore.collection "users"
+        # Firestore.collection Collection.users
         # Firestore.doc uid
-        # Firestore.collection "notes"
+        # Firestore.collection Collection.notes
         # Firestore.add doc
         # H.liftAff
       navigate NoteIndex

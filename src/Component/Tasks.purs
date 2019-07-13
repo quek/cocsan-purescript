@@ -8,6 +8,7 @@ import Coc.Component.Nav as Nav
 import Coc.Firebase.Auth as Auth
 import Coc.Firebase.Firestore as Firestore
 import Coc.Model.Task (GTask(..), Task)
+import Coc.Store (userTasks)
 import Control.Monad.Except (runExcept)
 import Control.MonadPlus (guard)
 import Data.Either (hush)
@@ -83,11 +84,8 @@ component =
         user <- H.liftEffect Auth.currentUser
         let uid = Auth.uid user
         firestore <- H.liftEffect Firestore.firestore
-        let collection = firestore
-                         # Firestore.collection "users"
-                         # Firestore.doc uid
-                         # Firestore.collection "tasks"
-        querySnapshot <- H.liftAff $ Firestore.get collection
+        userTasks' <- H.liftEffect userTasks
+        querySnapshot <- H.liftAff $ Firestore.get userTasks'
         H.liftEffect $ logShow $ Firestore.size querySnapshot
         let
           opts = defaultOptions {unwrapSingleConstructors = true}

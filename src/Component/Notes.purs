@@ -3,6 +3,7 @@ module Coc.Component.Notes where
 import Prelude
 
 import Coc.AppM (class LogMessages, class Navigate, MyRoute(..), logMessage, navigate)
+import Coc.Store.Collection as Collection
 import Coc.Firebase.Auth as Auth
 import Coc.Firebase.Firestore as Firestore
 import Coc.Model.Note (GNote(..), Note)
@@ -74,9 +75,9 @@ component =
       let uid = Auth.uid user
       firestore <- H.liftEffect Firestore.firestore
       let collection = firestore
-                       # Firestore.collection "users"
+                       # Firestore.collection Collection.users
                        # Firestore.doc uid
-                       # Firestore.collection "notes"
+                       # Firestore.collection Collection.notes
       querySnapshot <- H.liftAff $ Firestore.get collection
       let
         opts = defaultOptions {unwrapSingleConstructors = true}
