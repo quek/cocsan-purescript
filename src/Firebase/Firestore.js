@@ -39,7 +39,7 @@ exports.docs = function(querySnapshot) {
   return querySnapshot.docs;
 };
 
-exports.documentDataImpl = function(querySnapshot) {
+exports.dataImpl = function(querySnapshot) {
   return querySnapshot.data();
 };
 
@@ -47,7 +47,7 @@ exports.getFieldImpl = function(queryDocumentSnapshot, fieldPath) {
   return queryDocumentSnapshot.get(fieldPath);
 };
 
-exports.ref = function(documeentSnapshot) {
+exports.refImpl = function(documeentSnapshot) {
   return documeentSnapshot.ref;
 };
 

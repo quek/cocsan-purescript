@@ -15,6 +15,7 @@ foreign import data Firestore :: Type
 foreign import data CollectionReference :: Type
 foreign import data QuerySnapshot :: Type
 foreign import data QueryDocumentSnapshot :: Type
+foreign import data DocumentSnapshot :: Type
 type DocumentData = Foreign
 foreign import data DocumentReference :: Type
 
@@ -58,22 +59,42 @@ instance hasIdDocumentReference :: HasId DocumentReference where
 -- foreign import getImpl :: EffectFn1 CollectionReference QuerySnapshot
 -- get :: CollectionReference -> Effect QuerySnapshot
 -- get = runEffectFn1 getImpl
-foreign import getImpl :: CollectionReference -> Effect (Promise QuerySnapshot)
-get :: CollectionReference -> Aff QuerySnapshot
-get collectionReference = liftEffect (getImpl collectionReference) >>= Promise.toAff
+foreign import getImpl :: forall a b. a -> Effect (Promise b)
+getImpl' :: forall a b. a -> Aff b
+getImpl' a = liftEffect (getImpl a) >>= Promise.toAff
+
+class Get a b where
+  get :: a -> b
+
+instance getCollectionReference :: Get CollectionReference (Aff QuerySnapshot) where
+  get = getImpl'
+
+instance getDocumentReference :: Get DocumentReference (Aff DocumentSnapshot) where
+  get = getImpl'
 
 foreign import size :: QuerySnapshot -> Int
 foreign import docs :: QuerySnapshot -> Array QueryDocumentSnapshot
 
-foreign import documentDataImpl :: Fn1  QueryDocumentSnapshot DocumentData
-data' :: QueryDocumentSnapshot -> DocumentData
-data' = runFn1 documentDataImpl
+foreign import dataImpl :: forall a. Fn1 a DocumentData
+dataImpl' :: forall a. a -> DocumentData
+dataImpl' = runFn1 dataImpl
+foreign import refImpl :: forall a. a -> DocumentReference
+
+class Snapshot a where
+  data' :: a -> DocumentData
+  ref :: a -> DocumentReference
+
+instance dataDocumentSnapshot :: Snapshot DocumentSnapshot where
+  data' = dataImpl'
+  ref = refImpl
+
+instance dataQueryDocumentSnapshot :: Snapshot QueryDocumentSnapshot where
+  data' = dataImpl'
+  ref = refImpl
 
 foreign import getFieldImpl :: Fn2 QueryDocumentSnapshot String String
 getField :: QueryDocumentSnapshot -> String -> String
 getField = runFn2 getFieldImpl
-
-foreign import ref :: QueryDocumentSnapshot -> DocumentReference
 
 foreign import deleteImpl :: DocumentReference -> Effect (Promise Unit)
 delete :: DocumentReference -> Aff Unit
