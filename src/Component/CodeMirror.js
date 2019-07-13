@@ -11,6 +11,10 @@ exports.getValueImpl = function(codeMirror) {
   return codeMirror.getValue();
 };
 
+exports.setValueImpl = function(codeMirror, value) {
+  return codeMirror.setValue(value);
+};
+
 exports.onImpl = function(codeMirror, eventName, fn) {
   return function () {
     return codeMirror.on(eventName, function (ev) {

@@ -2,7 +2,7 @@ module Coc.Component.CodeMirror where
 
 import Data.Function.Uncurried (Fn3, runFn3)
 import Effect (Effect)
-import Effect.Aff.Compat (EffectFn1, runEffectFn1)
+import Effect.Aff.Compat (EffectFn1, EffectFn2, runEffectFn1, runEffectFn2)
 import Prelude (Unit)
 
 foreign import data CodeMirror :: Type
@@ -14,6 +14,10 @@ make = runEffectFn1 makeImpl
 foreign import getValueImpl :: EffectFn1 CodeMirror String
 getValue ::  CodeMirror -> Effect String
 getValue = runEffectFn1 getValueImpl
+
+foreign import setValueImpl :: EffectFn2 CodeMirror String Unit
+setValue ::  CodeMirror -> String -> Effect Unit
+setValue = runEffectFn2 setValueImpl
 
 foreign import onImpl :: forall ev a. Fn3 CodeMirror String (ev -> Effect a) (Effect Unit)
 -- on :: forall a b. CodeMirror -> String -> (a -> Effect b) -> Effect Unit

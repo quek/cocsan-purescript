@@ -23,12 +23,14 @@ data Action
   | Finalize
   | HandleChange
 
-type State = { editor :: Maybe CodeMirror.CodeMirror }
+type State = { editor :: Maybe CodeMirror.CodeMirror
+             , body :: String
+             }
 
-component :: forall i m
+component :: forall m
              . MonadAff m
              => LogMessages m
-             => H.Component HH.HTML Query i Output m
+             => H.Component HH.HTML Query String Output m
 component =
   H.mkComponent
     { initialState
@@ -41,8 +43,8 @@ component =
         }
     }
 
-initialState :: forall i. i -> State
-initialState _ = { editor: Nothing }
+initialState :: String -> State
+initialState body = { editor: Nothing, body }
 
 render :: forall m. State -> H.ComponentHTML Action () m
 render
@@ -54,7 +56,9 @@ handleAction :: forall m
              => Action -> H.HalogenM State Action () Output m Unit
 handleAction = case _ of
   Initialize -> do
+    state <- H.get
     editor <- H.liftEffect $ CodeMirror.make "editor"
+    H.liftEffect $ CodeMirror.setValue editor state.body
     H.modify_ (_ { editor = Just editor })
     void $ H.subscribe $ ES.effectEventSource \emitter -> do
       CodeMirror.onChange editor (\_ -> ES.emit emitter HandleChange)

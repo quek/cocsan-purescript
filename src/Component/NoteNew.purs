@@ -58,7 +58,7 @@ component =
   render state =
     HH.div
       [ HP.class_ $ H.ClassName "notes" ]
-      [ HH.slot _ecitor unit EditorComponent.component unit (Just <<< HandleAceUpdate)
+      [ HH.slot _ecitor unit EditorComponent.component "" (Just <<< HandleAceUpdate)
       , HH.button
           [ HP.class_ $ H.ClassName "add-button", HE.onClick (Just <<< Save) ]
           [ HH.text "Save" ]

@@ -6,7 +6,7 @@ import Coc.AppM (class LogMessages, class Navigate, MyRoute(..), DocumentPathId,
 import Coc.Component.EditorComponent as EditorComponent
 import Coc.Model.Note (Note)
 import Coc.Model.Note as Note
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), maybe)
 import Data.Symbol (SProxy(..))
 import Effect.Aff.Class (class MonadAff)
 import Halogen as H
@@ -55,11 +55,13 @@ component =
   render state =
     HH.div
       [ HP.class_ $ H.ClassName "notes" ]
-      [ HH.slot _ecitor unit EditorComponent.component unit (Just <<< HandleAceUpdate)
+      [ HH.slot _ecitor unit EditorComponent.component body (Just <<< HandleAceUpdate)
       , HH.button
           [ HP.class_ $ H.ClassName "add-button", HE.onClick (Just <<< Save) ]
           [ HH.text "Save edit" ]
       ]
+    where
+      body = maybe "" _.body state.note
 
   handleAction = case _ of
     Initialize -> initialize
