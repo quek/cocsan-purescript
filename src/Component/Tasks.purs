@@ -82,9 +82,11 @@ component =
         logMessage "初期化です"
         user <- H.liftEffect Auth.currentUser
         let uid = Auth.uid user
-        let collection = Firestore.subCollection "tasks" $
-          Firestore.doc uid $
-          Firestore.collection "users"
+        firestore <- H.liftEffect Firestore.firestore
+        let collection = firestore
+                         # Firestore.collection "users"
+                         # Firestore.doc uid
+                         # Firestore.collection "tasks"
         querySnapshot <- H.liftAff $ Firestore.get collection
         H.liftEffect $ logShow $ Firestore.size querySnapshot
         let

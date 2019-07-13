@@ -72,9 +72,11 @@ component =
       logMessage "Notes 初期化"
       user <- H.liftEffect Auth.currentUser
       let uid = Auth.uid user
-      let collection = Firestore.subCollection "notes" $
-        Firestore.doc uid $
-        Firestore.collection "users"
+      firestore <- H.liftEffect Firestore.firestore
+      let collection = firestore
+                       # Firestore.collection "users"
+                       # Firestore.doc uid
+                       # Firestore.collection "notes"
       querySnapshot <- H.liftAff $ Firestore.get collection
       let
         opts = defaultOptions {unwrapSingleConstructors = true}

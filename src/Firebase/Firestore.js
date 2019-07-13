@@ -3,16 +3,16 @@
 const firebase = require('firebase/app');
 require('firebase/firestore');
 
-exports.collection = function(collectionName) {
-  return firebase.firestore().collection(collectionName);
+exports.firestore = function() {
+  return firebase.firestore();
+};
+
+exports.collectionImpl = function(collectionName, hasCollection) {
+  return hasCollection.collection(collectionName);
 };
 
 exports.docImpl = function(documentPath, collectionReference) {
   return collectionReference.doc(documentPath);
-};
-
-exports.subCollectionImpl = function(collectionPath, documentReference) {
-  return documentReference.collection(collectionPath);
 };
 
 exports.addImpl = function(data, collectionReference) {

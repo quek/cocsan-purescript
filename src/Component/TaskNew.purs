@@ -79,11 +79,13 @@ component =
       let uid = Auth.uid user
       H.liftEffect $ log $ uid
       let d = genericEncode defaultOptions (GTask { name: task.name, done: false })
-      _ <- H.liftAff $
-        Firestore.add d $
-        Firestore.subCollection "tasks" $
-        Firestore.doc uid $
-        Firestore.collection "users"
+      firestore <- H.liftEffect Firestore.firestore
+      _ <- firestore
+           # Firestore.collection "users"
+           # Firestore.doc uid
+           # Firestore.collection "tasks"
+           # Firestore.add d
+           # H.liftAff
       H.liftEffect $ log $ show task
       navigate TaskIndex
 

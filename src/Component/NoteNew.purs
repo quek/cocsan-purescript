@@ -76,11 +76,13 @@ component =
               , updatedAt: DateTime now
               }
         )
-      _ <- H.liftAff $
-        Firestore.add doc $
-        Firestore.subCollection "notes" $
-        Firestore.doc uid $
-        Firestore.collection "users"
+      firestore <- H.liftEffect Firestore.firestore
+      _ <- firestore
+        # Firestore.collection "users"
+        # Firestore.doc uid
+        # Firestore.collection "notes"
+        # Firestore.add doc
+        # H.liftAff
       navigate NoteIndex
     HandleAceUpdate (EditorComponent.TextChanged text) ->
        H.modify_ (_ { body = text })

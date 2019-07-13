@@ -11,21 +11,29 @@ import Effect.Aff.Compat (EffectFn2, runEffectFn2)
 import Effect.Class (liftEffect)
 import Foreign (Foreign)
 
+foreign import data Firestore :: Type
 foreign import data CollectionReference :: Type
 foreign import data QuerySnapshot :: Type
 foreign import data QueryDocumentSnapshot :: Type
 type DocumentData = Foreign
 foreign import data DocumentReference :: Type
 
-foreign import collection :: String -> CollectionReference
+foreign import firestore :: Effect Firestore
+
+foreign import collectionImpl :: forall a. Fn2 String a CollectionReference
+
+class HasCollection a where
+  collection :: String -> a -> CollectionReference
+
+instance hasCollectionFirestore :: HasCollection Firestore where
+  collection = runFn2 collectionImpl
+
+instance hasCollectionDocumentReference :: HasCollection DocumentReference where
+  collection = runFn2 collectionImpl
 
 foreign import docImpl :: Fn2 String CollectionReference DocumentReference
 doc :: String -> CollectionReference -> DocumentReference
 doc = runFn2 docImpl
-
-foreign import subCollectionImpl :: Fn2 String DocumentReference CollectionReference
-subCollection :: String -> DocumentReference -> CollectionReference
-subCollection = runFn2 subCollectionImpl
 
 foreign import addImpl :: EffectFn2 DocumentData CollectionReference (Promise DocumentReference)
 -- addImpl' :: DocumentData -> CollectionReference -> Effect (Promise DocumentReference)
