@@ -35,7 +35,17 @@ foreign import addImpl :: EffectFn2 DocumentData CollectionReference (Promise Do
 add :: DocumentData -> CollectionReference -> Aff DocumentReference
 add d c = liftEffect (runEffectFn2 addImpl d c) >>= Promise.toAff
 
-foreign import id :: forall a. a -> String
+foreign import idImpl :: forall a. a -> String
+
+class HasId a where
+  id :: a -> String
+
+instance hasIdCollectionReference :: HasId CollectionReference where
+  id = idImpl
+
+instance hasIdDocumentReference :: HasId DocumentReference where
+  id = idImpl
+
 
 -- foreign import getImpl :: EffectFn1 CollectionReference QuerySnapshot
 -- get :: CollectionReference -> Effect QuerySnapshot

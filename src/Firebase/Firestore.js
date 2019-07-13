@@ -21,7 +21,7 @@ exports.addImpl = function(data, collectionReference) {
 };
 
 
-exports.id = function(hasId) {
+exports.idImpl = function(hasId) {
   return hasId.id;
 };
 
@@ -48,7 +48,7 @@ exports.getFieldImpl = function(queryDocumentSnapshot, fieldPath) {
 };
 
 exports.ref = function(documeentSnapshot) {
-  return documeentSnapshot.ref
+  return documeentSnapshot.ref;
 };
 
 exports.deleteImpl = function(documentReference) {
