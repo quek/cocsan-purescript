@@ -99,3 +99,8 @@ getField = runFn2 getFieldImpl
 foreign import deleteImpl :: DocumentReference -> Effect (Promise Unit)
 delete :: DocumentReference -> Aff Unit
 delete documentReference = liftEffect (deleteImpl documentReference) >>= Promise.toAff
+
+foreign import updateImpl :: EffectFn2 DocumentData DocumentReference (Promise Unit)
+update :: DocumentData -> DocumentReference -> Aff Unit
+update documentData documentReference =
+  liftEffect (runEffectFn2 updateImpl documentData documentReference) >>= Promise.toAff

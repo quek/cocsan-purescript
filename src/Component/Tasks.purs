@@ -23,6 +23,7 @@ import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Partial.Unsafe (unsafePartial)
+import Record as Record
 
 type Slot = H.Slot Query Void
 
@@ -95,5 +96,7 @@ component =
             let maybeTask = hush $ runExcept $ genericDecode opts documentData
             guard $ isJust maybeTask
             let (GTask taskData) = unsafePartial fromJust maybeTask
-            pure $ { ref: Firestore.ref doc, name: taskData.name, done: taskData.done }
+            pure $ Record.insert _ref (Firestore.ref doc) taskData
         H.modify_ (_ { tasks = tasks})
+
+_ref = SProxy :: SProxy "ref"

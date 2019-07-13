@@ -54,5 +54,9 @@ exports.refImpl = function(documeentSnapshot) {
 exports.deleteImpl = function(documentReference) {
   return function() {
     return documentReference.delete();
-  }
-}
+  };
+};
+
+exports.updateImpl = function(data, documentReference) {
+  return documentReference.update(data.contents);
+};

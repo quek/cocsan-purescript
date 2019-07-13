@@ -6,7 +6,7 @@ import Coc.AppM (class LogMessages, class Navigate, DocumentPathId, MyRoute(..),
 import Coc.Component.EditorComponent as EditorComponent
 import Coc.Model.Note (Note)
 import Coc.Model.Note as Note
-import Data.Maybe (Maybe(..), maybe)
+import Data.Maybe (Maybe(..))
 import Data.Symbol (SProxy(..))
 import Effect.Aff.Class (class MonadAff)
 import Halogen as H
@@ -20,7 +20,6 @@ type Slot p = forall query. H.Slot query Void p
 type State =
   { id :: DocumentPathId
   , note :: Maybe Note
-  , body :: String
   }
 
 data Action
@@ -49,7 +48,7 @@ component =
                                      }
     }
   where
-  initialState id = { id, note: Nothing, body: "" }
+  initialState id = { id, note: Nothing }
 
   render :: State -> H.ComponentHTML Action ChildSlots m
   render state =
@@ -72,6 +71,17 @@ component =
       logMessage note.body
       H.modify_ (_ { note = Just note })
     Save event -> do
+      state <- H.get
+      case state.note of
+        Just note -> do
+          _ <- H.liftAff $ Note.update note
+          pure unit
+        Nothing -> pure unit
       navigate NoteIndex
     HandleAceUpdate (EditorComponent.TextChanged text) ->
-       H.modify_ (_ { body = text })
+       H.modify_  \state -> do
+         case state.note of
+           Just note ->
+             state { note = Just (note { body = text }) }
+           Nothing -> state
+

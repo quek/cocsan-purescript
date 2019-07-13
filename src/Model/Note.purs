@@ -4,16 +4,20 @@ import Prelude
 
 import Coc.Firebase.Firestore as Firestore
 import Coc.Model.Base (BaseData, BaseDoc)
+import Coc.Model.DateTime (DateTime(..))
 import Coc.Store (userNotes)
 import Control.Monad.Except (runExcept)
 import Data.Either (hush)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (fromJust)
+import Data.Symbol (SProxy(..))
 import Effect.Aff (Aff)
 import Effect.Class (liftEffect)
-import Foreign.Generic (defaultOptions, genericDecode)
+import Effect.Now (nowDateTime)
+import Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Partial.Unsafe (unsafePartial)
+import Record as Record
 
 type NoteBase x =
   { body :: String
@@ -38,9 +42,15 @@ find id = do
     userNotes') :: (Aff Firestore.DocumentSnapshot))
   let maybeDoc = hush $ runExcept $ genericDecode opts $ Firestore.data' documentSnapshot
   let (GNote noteData) = unsafePartial fromJust maybeDoc
-  pure $ { ref: Firestore.ref documentSnapshot
-         , body: noteData.body
-         , createdAt: noteData.createdAt
-         , updatedAt: noteData.updatedAt
-         }
+  pure $ Record.insert _ref (Firestore.ref documentSnapshot) noteData
 
+update :: Note -> Aff Unit
+update note = do
+  now <- liftEffect nowDateTime
+  let note' = Record.delete _ref note
+  let doc = genericEncode defaultOptions (
+        GNote (note' { updatedAt = DateTime now })
+        )
+  Firestore.update doc note.ref
+
+_ref = SProxy :: SProxy "ref"
