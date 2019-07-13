@@ -2,7 +2,7 @@ module Coc.Component.NoteEdit where
 
 import Prelude
 
-import Coc.AppM (class LogMessages, class Navigate, MyRoute(..), DocumentPathId, navigate)
+import Coc.AppM (class LogMessages, class Navigate, DocumentPathId, MyRoute(..), logMessage, navigate)
 import Coc.Component.EditorComponent as EditorComponent
 import Coc.Model.Note (Note)
 import Coc.Model.Note as Note
@@ -53,24 +53,25 @@ component =
 
   render :: State -> H.ComponentHTML Action ChildSlots m
   render state =
-    HH.div
-      [ HP.class_ $ H.ClassName "notes" ]
-      [ HH.slot _ecitor unit EditorComponent.component body (Just <<< HandleAceUpdate)
-      , HH.button
-          [ HP.class_ $ H.ClassName "add-button", HE.onClick (Just <<< Save) ]
-          [ HH.text "Save edit" ]
-      ]
-    where
-      body = maybe "" _.body state.note
+    case state.note of
+      Just note ->
+        HH.div
+          [ HP.class_ $ H.ClassName "notes" ]
+          [ HH.slot _ecitor unit EditorComponent.component note.body (Just <<< HandleAceUpdate)
+          , HH.button
+              [ HP.class_ $ H.ClassName "add-button", HE.onClick (Just <<< Save) ]
+              [ HH.text "Save" ]
+          ]
+      Nothing -> HH.div_ []
 
   handleAction = case _ of
-    Initialize -> initialize
+    Initialize -> do
+      state <- H.get
+      note <- H.liftAff $ Note.find state.id
+      logMessage "NoteEdit Initialize"
+      logMessage note.body
+      H.modify_ (_ { note = Just note })
     Save event -> do
       navigate NoteIndex
     HandleAceUpdate (EditorComponent.TextChanged text) ->
        H.modify_ (_ { body = text })
-    where
-    initialize = do
-      state <- H.get
-      note <- H.liftAff $ Note.find state.id
-      H.modify_ (_ { note = Just note })

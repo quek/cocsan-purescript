@@ -12,6 +12,8 @@ exports.getValueImpl = function(codeMirror) {
 };
 
 exports.setValueImpl = function(codeMirror, value) {
+  console.log(codeMirror);
+  console.log(value);
   return codeMirror.setValue(value);
 };
 
