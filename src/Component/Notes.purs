@@ -5,20 +5,16 @@ import Prelude
 import Coc.AppM (class LogMessages, class Navigate, MyRoute(..), logMessage, navigate)
 import Coc.Firebase.Auth as Auth
 import Coc.Firebase.Firestore as Firestore
+import Coc.Model.Base (decode)
 import Coc.Model.Note (GNote(..), Note)
 import Coc.Store.Collection as Collection
-import Control.Monad.Except (runExcept)
-import Control.MonadPlus (guard)
-import Data.Either (hush)
-import Data.Maybe (Maybe(..), fromJust, isJust)
+import Data.Maybe (Maybe(..))
 import Data.Symbol (SProxy(..))
 import Effect.Aff.Class (class MonadAff)
-import Foreign.Generic (defaultOptions, genericDecode)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import Partial.Unsafe (unsafePartial)
 import Record as Record
 import Web.UIEvent.MouseEvent (MouseEvent)
 
@@ -82,13 +78,10 @@ component =
                        # Firestore.collection Collection.notes
       querySnapshot <- H.liftAff $ Firestore.get collection
       let
-        opts = defaultOptions {unwrapSingleConstructors = true}
         notes = do
           doc <- Firestore.docs querySnapshot
           let documentData = Firestore.data' doc
-          let maybeDoc = hush $ runExcept $ genericDecode opts documentData
-          guard $ isJust maybeDoc
-          let (GNote noteData) = unsafePartial fromJust maybeDoc
+          let (GNote noteData) = decode documentData
           pure $ Record.insert _ref (Firestore.ref doc) noteData
       H.modify_ (_ { notes = notes })
 

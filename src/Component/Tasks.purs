@@ -7,6 +7,7 @@ import Coc.AppM (class LogMessages, class Navigate, logMessage)
 import Coc.Component.Nav as Nav
 import Coc.Firebase.Auth as Auth
 import Coc.Firebase.Firestore as Firestore
+import Coc.Model.Base (decode)
 import Coc.Model.Task (GTask(..), Task)
 import Coc.Store (userTasks)
 import Control.Monad.Except (runExcept)
@@ -89,13 +90,10 @@ component =
         querySnapshot <- H.liftAff $ Firestore.get userTasks'
         H.liftEffect $ logShow $ Firestore.size querySnapshot
         let
-          opts = defaultOptions {unwrapSingleConstructors = true}
           tasks = do
             doc <- Firestore.docs querySnapshot
             let documentData = Firestore.data' doc
-            let maybeTask = hush $ runExcept $ genericDecode opts documentData
-            guard $ isJust maybeTask
-            let (GTask taskData) = unsafePartial fromJust maybeTask
+            let (GTask taskData) = decode documentData
             pure $ Record.insert _ref (Firestore.ref doc) taskData
         H.modify_ (_ { tasks = tasks})
 
