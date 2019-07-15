@@ -3,7 +3,7 @@ module Coc.Model.Note where
 import Prelude
 
 import Coc.Firebase.Firestore as Firestore
-import Coc.Model (class Find, class Model, find', findImpl)
+import Coc.Model (class Model, find', findImpl)
 import Coc.Model.Base (BaseData, BaseDoc, deleteRef, encode, insertRef)
 import Coc.Model.DateTime (DateTime(..))
 import Coc.Store (userNotes)
@@ -12,7 +12,6 @@ import Data.Generic.Rep.Show (genericShow)
 import Effect.Aff (Aff)
 import Effect.Class (liftEffect)
 import Effect.Now (nowDateTime)
-import Type.Proxy (Proxy(..))
 
 type NoteBase x =
   { body :: String
@@ -42,6 +41,4 @@ update note = do
 
 instance modelNote :: Model GNote where
   collection' _ = userNotes
-
-instance findNote :: Find GNote where
-  find' = findImpl (Proxy :: Proxy GNote)
+  find' = findImpl userNotes
