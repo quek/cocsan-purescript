@@ -2,11 +2,11 @@ module Coc.Component.Routing where
 
 import Prelude
 
-import Coc.AppM (class LogMessages, class Navigate, Env, GlobalMessage(..), MyRoute(..), DocumentPathId, logMessage, routeToPath)
+import Coc.AppM (class Behaviour, class Navigate, DocumentPathId, Env, GlobalMessage(..), MyRoute(..), logMessage, routeToPath)
+import Coc.Component.NoteEdit as NoteEdit
 import Coc.Component.NoteNew as NoteNew
 import Coc.Component.Notes as Notes
 import Coc.Component.TaskNew as TaskNew
-import Coc.Component.NoteEdit as NoteEdit
 import Coc.Component.Tasks as Tasks
 import Control.Monad.Reader.Trans (class MonadAsk, asks)
 import Data.Either (Either(..))
@@ -54,17 +54,19 @@ myRoute = root *> oneOf
   ]
 
 type State =
-  { route :: MyRoute }
+  { route :: MyRoute
+  , loading :: Int
+  }
 
 component :: forall o m
              .  MonadAff m
-             => LogMessages m
+             => Behaviour m
              => Navigate m
              => MonadAsk Env m
              => H.Component HH.HTML Query Unit o m
 component =
   H.mkComponent
-    { initialState: \_ -> { route: TaskIndex }
+    { initialState: \_ -> { route: TaskIndex, loading: 0 }
     , render
     , eval: H.mkEval $ H.defaultEval { handleQuery = handleQuery
                                      , handleAction = handleAction
@@ -76,7 +78,10 @@ component =
   render state =
     HH.div
       [ HP.class_ $ H.ClassName "body" ]
-      [ case state.route of
+      [ case state.loading of
+          0 -> HH.text "" 
+          _ -> HH.div [ HP.class_ $ H.ClassName "loading" ] [] 
+      , case state.route of
           TaskIndex ->
             HH.slot _tasks unit Tasks.component unit absurd
           TaskNew ->
@@ -111,6 +116,12 @@ component =
         pushState route
         H.modify_ \st -> st { route = route }
         pure unit
+      StartLoadingG -> do
+        logMessage "start loading..."
+        H.modify_ \st -> st { loading = st.loading + 1 }
+      StopLoadingG -> do
+        logMessage "stop loading!!!"
+        H.modify_ \st -> st { loading = st.loading - 1 }
     globalMessageLoop
 
   pushState route = do

@@ -2,7 +2,7 @@ module Coc.Component.NoteNew where
 
 import Prelude
 
-import Coc.AppM (class LogMessages, class Navigate, MyRoute(..), logMessage, navigate)
+import Coc.AppM (class Behaviour, class Navigate, MyRoute(..), logMessage, navigate)
 import Coc.Store.Collection as Collection
 import Coc.Component.EditorComponent as EditorComponent
 import Coc.Firebase.Auth as Auth
@@ -40,7 +40,7 @@ _ecitor = SProxy :: SProxy "ecitor"
 
 component :: forall query m
              . MonadAff m
-             => LogMessages m
+             => Behaviour m
              => Navigate m
              => H.Component HH.HTML query Unit Void m
 component =

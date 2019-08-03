@@ -20,6 +20,8 @@ import Type.Equality (class TypeEquals, from)
 
 data GlobalMessage
   = NavigateG MyRoute
+  | StartLoadingG
+  | StopLoadingG
 
 type Env =
   { globalMessage :: AVar GlobalMessage
@@ -71,12 +73,26 @@ instance navigateAppM :: Navigate AppM where
     liftAff $ put (NavigateG route) globalMessage
 
 
-class Monad m <= LogMessages m where
+class Monad m <= Behaviour m where
   logMessage :: String -> m Unit
+  startLoading :: m Unit
+  stopLoading :: m Unit
 
-instance logMessagesHalogenM :: LogMessages m => LogMessages (H.HalogenM st act slots msg m) where
+instance behaviourHalogenM :: Behaviour m => Behaviour (H.HalogenM st act slots msg m) where
   logMessage = lift <<< logMessage
+  startLoading = lift startLoading
+  stopLoading = lift stopLoading
 
-instance logMessagesAppM :: LogMessages AppM where
+
+instance behaviourAppM :: Behaviour AppM where
   logMessage log = do
     H.liftEffect $ Console.log log
+  startLoading = do
+    H.liftEffect $ Console.log "start &&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+    globalMessage <- asks _.globalMessage
+    liftAff $ put StartLoadingG globalMessage
+  stopLoading = do
+    H.liftEffect $ Console.log "stop!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    globalMessage <- asks _.globalMessage
+    liftAff $ put StopLoadingG globalMessage
+

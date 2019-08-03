@@ -2,7 +2,7 @@ module Coc.Component.EditorComponent where
 
 import Prelude
 
-import Coc.AppM (class LogMessages, logMessage)
+import Coc.AppM (class Behaviour, logMessage)
 import Coc.Component.CodeMirror as CodeMirror
 import Data.Foldable (traverse_)
 import Data.Maybe (Maybe(..))
@@ -29,7 +29,7 @@ type State = { editor :: Maybe CodeMirror.CodeMirror
 
 component :: forall m
              . MonadAff m
-             => LogMessages m
+             => Behaviour m
              => H.Component HH.HTML Query String Output m
 component =
   H.mkComponent
@@ -52,7 +52,7 @@ render
 
 handleAction :: forall m
              . MonadAff m
-             => LogMessages m
+             => Behaviour m
              => Action -> H.HalogenM State Action () Output m Unit
 handleAction = case _ of
   Initialize -> do

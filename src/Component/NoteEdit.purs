@@ -2,7 +2,7 @@ module Coc.Component.NoteEdit where
 
 import Prelude
 
-import Coc.AppM (class LogMessages, class Navigate, DocumentPathId, MyRoute(..), logMessage, navigate)
+import Coc.AppM (class Behaviour, class Navigate, DocumentPathId, MyRoute(..), logMessage, navigate)
 import Coc.Component.EditorComponent as EditorComponent
 import Coc.Model.Note (Note)
 import Coc.Model.Note as Note
@@ -36,7 +36,7 @@ _ecitor = SProxy :: SProxy "ecitor"
 
 component :: forall query m
              . MonadAff m
-             => LogMessages m
+             => Behaviour m
              => Navigate m
              => H.Component HH.HTML query DocumentPathId Void m
 component =

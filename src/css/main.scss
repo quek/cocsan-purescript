@@ -51,3 +51,21 @@ a {
     width: 100%;
   }
 }
+
+.loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  animation: bgChange 4s linear 0s infinite alternate;
+  background: linear-gradient(-135deg, #E4A972, #9941D8);
+  height: 7px;
+  width: 100%;
+  @keyframes bgChange {
+		0% {
+		    filter: hue-rotate(0deg);
+		}
+		100% {
+		    filter: hue-rotate(360deg);
+		}
+	}
+}

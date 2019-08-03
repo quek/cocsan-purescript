@@ -2,7 +2,7 @@ module Coc.Component.Notes where
 
 import Prelude
 
-import Coc.AppM (class LogMessages, class Navigate, MyRoute(..), logMessage, navigate)
+import Coc.AppM (class Behaviour, class Navigate, MyRoute(..), logMessage, navigate)
 import Coc.Firebase.Auth as Auth
 import Coc.Firebase.Firestore as Firestore
 import Coc.Model.Base (decode)
@@ -29,7 +29,7 @@ data Action
 
 component :: forall query m
              . MonadAff m
-             => LogMessages m
+             => Behaviour m
              => Navigate m
              => H.Component HH.HTML query Unit Void m
 component =
