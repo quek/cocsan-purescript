@@ -54,7 +54,7 @@ myRoute = root *> oneOf
   ]
 
 type State =
-  { route :: MyRoute
+  { route :: Maybe MyRoute
   , loading :: Int
   }
 
@@ -66,7 +66,7 @@ component :: forall o m
              => H.Component HH.HTML Query Unit o m
 component =
   H.mkComponent
-    { initialState: \_ -> { route: TaskIndex, loading: 0 }
+    { initialState: \_ -> { route: Nothing, loading: 0 }
     , render
     , eval: H.mkEval $ H.defaultEval { handleQuery = handleQuery
                                      , handleAction = handleAction
@@ -82,16 +82,17 @@ component =
           0 -> HH.text "" 
           _ -> HH.div [ HP.class_ $ H.ClassName "loading" ] [] 
       , case state.route of
-          TaskIndex ->
+          Just TaskIndex ->
             HH.slot _tasks unit Tasks.component unit absurd
-          TaskNew ->
+          Just TaskNew ->
             HH.slot _taskNew unit TaskNew.component unit absurd
-          NoteIndex ->
+          Just NoteIndex ->
             HH.slot _notes unit Notes.component unit absurd
-          NoteNew ->
+          Just NoteNew ->
             HH.slot _noteNew unit NoteNew.component unit absurd
-          NoteEdit id ->
+          Just (NoteEdit id) ->
             HH.slot _noteEdit id NoteEdit.component id absurd
+          Nothing -> HH.text ""
       ]
 
   handleQuery :: forall a. Query a -> H.HalogenM State Action ChildSlots o m (Maybe a)
@@ -104,9 +105,9 @@ component =
   handleAction = case _ of
     Initialize -> do
       logMessage "初期化 Routing.purs"
+      void $ H.fork globalMessageLoop
       path <- H.liftEffect $ window >>= location >>= pathname
       updateRoute path
-      void $ H.fork globalMessageLoop
 
   globalMessageLoop = do
     globalMessage <- asks _.globalMessage
@@ -114,7 +115,7 @@ component =
     case query of
       NavigateG route -> do
         pushState route
-        H.modify_ \st -> st { route = route }
+        H.modify_ \st -> st { route = Just route }
         pure unit
       StartLoadingG -> do
         logMessage "start loading..."
@@ -131,5 +132,5 @@ component =
   updateRoute path = do
     case match myRoute path of
       Right newRoute -> do
-        H.modify_ \st -> st { route = newRoute }
+        H.modify_ \st -> st { route = Just newRoute }
       Left e -> H.liftEffect $ log e
