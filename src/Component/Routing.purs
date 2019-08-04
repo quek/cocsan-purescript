@@ -115,13 +115,13 @@ component =
     case query of
       NavigateG route -> do
         pushState route
+        logMessage "navigate H.modify_ start"
         H.modify_ \st -> st { route = Just route }
+        logMessage "navigate H.modify_ end"
         pure unit
       StartLoadingG -> do
-        logMessage "start loading..."
         H.modify_ \st -> st { loading = st.loading + 1 }
       StopLoadingG -> do
-        logMessage "stop loading!!!"
         H.modify_ \st -> st { loading = st.loading - 1 }
     globalMessageLoop
 
