@@ -116,7 +116,7 @@ component =
       NavigateG route -> do
         pushState route
         logMessage "navigate H.modify_ start"
-        H.modify_ \st -> st { route = Just route }
+        H.modify_ (_ { route = Just route })
         logMessage "navigate H.modify_ end"
         pure unit
       StartLoadingG -> do
