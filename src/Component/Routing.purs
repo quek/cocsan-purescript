@@ -2,11 +2,11 @@ module Coc.Component.Routing where
 
 import Prelude
 
-import Coc.AppM (class LogMessages, class Navigate, Env, GlobalMessage(..), MyRoute(..), DocumentPathId, logMessage, routeToPath)
+import Coc.AppM (class Behaviour, class Navigate, DocumentPathId, Env, GlobalMessage(..), MyRoute(..), logMessage, routeToPath)
+import Coc.Component.NoteEdit as NoteEdit
 import Coc.Component.NoteNew as NoteNew
 import Coc.Component.Notes as Notes
 import Coc.Component.TaskNew as TaskNew
-import Coc.Component.NoteEdit as NoteEdit
 import Coc.Component.Tasks as Tasks
 import Control.Monad.Reader.Trans (class MonadAsk, asks)
 import Data.Either (Either(..))
@@ -54,17 +54,19 @@ myRoute = root *> oneOf
   ]
 
 type State =
-  { route :: MyRoute }
+  { route :: Maybe MyRoute
+  , loading :: Int
+  }
 
 component :: forall o m
              .  MonadAff m
-             => LogMessages m
+             => Behaviour m
              => Navigate m
              => MonadAsk Env m
              => H.Component HH.HTML Query Unit o m
 component =
   H.mkComponent
-    { initialState: \_ -> { route: TaskIndex }
+    { initialState: \_ -> { route: Nothing, loading: 0 }
     , render
     , eval: H.mkEval $ H.defaultEval { handleQuery = handleQuery
                                      , handleAction = handleAction
@@ -76,17 +78,21 @@ component =
   render state =
     HH.div
       [ HP.class_ $ H.ClassName "body" ]
-      [ case state.route of
-          TaskIndex ->
+      [ case state.loading of
+          0 -> HH.text "" 
+          _ -> HH.div [ HP.class_ $ H.ClassName "loading" ] [] 
+      , case state.route of
+          Just TaskIndex ->
             HH.slot _tasks unit Tasks.component unit absurd
-          TaskNew ->
+          Just TaskNew ->
             HH.slot _taskNew unit TaskNew.component unit absurd
-          NoteIndex ->
+          Just NoteIndex ->
             HH.slot _notes unit Notes.component unit absurd
-          NoteNew ->
+          Just NoteNew ->
             HH.slot _noteNew unit NoteNew.component unit absurd
-          NoteEdit id ->
+          Just (NoteEdit id) ->
             HH.slot _noteEdit id NoteEdit.component id absurd
+          Nothing -> HH.text ""
       ]
 
   handleQuery :: forall a. Query a -> H.HalogenM State Action ChildSlots o m (Maybe a)
@@ -99,19 +105,26 @@ component =
   handleAction = case _ of
     Initialize -> do
       logMessage "初期化 Routing.purs"
+      void $ H.fork globalMessageLoop
       path <- H.liftEffect $ window >>= location >>= pathname
       updateRoute path
-      void $ H.fork globalMessageLoop
 
   globalMessageLoop = do
     globalMessage <- asks _.globalMessage
     query <- H.liftAff $ AVar.take globalMessage
+    -- 再起だと H.modify_ (_ { route = Just route }) でなぜかハングするの
+    void $ H.fork globalMessageLoop
     case query of
       NavigateG route -> do
         pushState route
-        H.modify_ \st -> st { route = route }
+        logMessage "navigate H.modify_ start"
+        H.modify_ (_ { route = Just route })
+        logMessage "navigate H.modify_ end"
         pure unit
-    globalMessageLoop
+      StartLoadingG -> do
+        H.modify_ \st -> st { loading = st.loading + 1 }
+      StopLoadingG -> do
+        H.modify_ \st -> st { loading = st.loading - 1 }
 
   pushState route = do
     pushStateInterface <- asks _.pushStateInterface
@@ -120,5 +133,5 @@ component =
   updateRoute path = do
     case match myRoute path of
       Right newRoute -> do
-        H.modify_ \st -> st { route = newRoute }
+        H.modify_ \st -> st { route = Just newRoute }
       Left e -> H.liftEffect $ log e

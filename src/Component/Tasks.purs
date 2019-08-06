@@ -3,7 +3,7 @@ module Coc.Component.Tasks where
 import Prelude
 
 import Assets (assets)
-import Coc.AppM (class LogMessages, class Navigate, logMessage)
+import Coc.AppM (class Behaviour, class Navigate, logMessage, startLoading, stopLoading)
 import Coc.Component.Nav as Nav
 import Coc.Firebase.Auth as Auth
 import Coc.Firebase.Firestore as Firestore
@@ -40,7 +40,7 @@ _nav = SProxy :: SProxy "nav"
 component
   :: forall q m
      . MonadAff m
-     => LogMessages m
+     => Behaviour m
      => Navigate m
      => H.Component HH.HTML q Unit Void m
 component =
@@ -77,6 +77,7 @@ component =
       initialize
     where
       initialize = do
+        startLoading
         logMessage "初期化です"
         user <- H.liftEffect Auth.currentUser
         let uid = Auth.uid user
@@ -91,5 +92,6 @@ component =
             let (GTask taskData) = decode documentData
             pure $ Record.insert _ref (Firestore.ref doc) taskData
         H.modify_ (_ { tasks = tasks})
+        stopLoading
 
 _ref = SProxy :: SProxy "ref"
