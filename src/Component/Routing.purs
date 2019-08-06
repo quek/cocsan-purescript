@@ -112,6 +112,8 @@ component =
   globalMessageLoop = do
     globalMessage <- asks _.globalMessage
     query <- H.liftAff $ AVar.take globalMessage
+    -- 再起だと H.modify_ (_ { route = Just route }) でなぜかハングするの
+    void $ H.fork globalMessageLoop
     case query of
       NavigateG route -> do
         pushState route
@@ -123,7 +125,6 @@ component =
         H.modify_ \st -> st { loading = st.loading + 1 }
       StopLoadingG -> do
         H.modify_ \st -> st { loading = st.loading - 1 }
-    globalMessageLoop
 
   pushState route = do
     pushStateInterface <- asks _.pushStateInterface
